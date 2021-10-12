@@ -7,5 +7,7 @@ namespace TravelHelperBackend.DTOs
 {
     public class LoginDataDTO
     {
+        public string Email { get; set; }
+        public string Password { get; set; }
     }
 }

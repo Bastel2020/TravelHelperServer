@@ -1,12 +1,14 @@
-﻿using TravelHelperBackend.DTOs;
+﻿using System.Security.Claims;
+using System.Threading.Tasks;
+using TravelHelperBackend.DTOs;
 
 namespace TravelHelperBackend.Interfaces
 {
     public interface IAuthRepository
     {
-        public bool RegisterUser(RegisterUserDTO data);
-        public bool AuthUser(LoginDataDTO data);
-        public bool LogOutUser(NoDataActionDTO data);
+        public Task<bool> RegisterUser(RegisterUserDTO data);
+        public Task<ClaimsIdentity> AuthUser(LoginDataDTO data);
+        public Task<bool> LogOutUser(NoDataActionDTO data);
 
     }
 }

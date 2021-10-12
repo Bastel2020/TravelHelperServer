@@ -2,7 +2,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
+using TravelHelperBackend.DTOs;
 using TravelHelperBackend.Interfaces;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -19,10 +21,10 @@ namespace TravelHelperBackend.Controllers
             _authRepository = repository;
         }
         // GET: api/<AuthController>
-        [HttpGet]
-        public IEnumerable<string> Get()
+        [HttpGet("Register")]
+        public async Task<bool> RegisterAccount([FromForm] RegisterUserDTO registerData)
         {
-            return new string[] { "value1", "value2" };
+            return await _authRepository.RegisterUser(registerData);
         }
 
         // GET api/<AuthController>/5

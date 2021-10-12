@@ -11,6 +11,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using TravelHelperBackend.Authentication;
 using TravelHelperBackend.Database;
+using TravelHelperBackend.Helpers;
+using TravelHelperBackend.Interfaces;
+using TravelHelperBackend.Repositories;
 
 namespace TravelHelperBackend
 {
@@ -26,7 +29,13 @@ namespace TravelHelperBackend
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddControllersWithViews();
+            services.Configure<SecuritySettings>(Configuration.GetSection("SecuritySettings"));
+            services.AddScoped<PasswordHasher>();
+
+            services.Configure<DatabaseOptions>(Configuration.GetSection("Database"));
+
+            services.AddScoped<IAuthRepository, DefaultAuthRepository>();
+
             services.AddDbContext<DefaultDbContext>();
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(op =>
@@ -46,8 +55,9 @@ namespace TravelHelperBackend
                         ValidateIssuerSigningKey = true,
                     };
                 });
-                
-            
+
+            services.AddControllersWithViews();
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
