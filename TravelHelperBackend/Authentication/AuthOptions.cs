@@ -12,7 +12,7 @@ namespace TravelHelperBackend.Authentication
     {
         public static readonly string ISSUER = "TravelHelperAuthServer"; // издатель токена
         public static readonly string AUDIENCE = "TravelHelperClient"; // потребитель токена
-        static readonly string KEY = "DWA!saf348j1cv0";   // ключ для шифрации
+        static readonly string KEY = "DWA!saf348j1cv0SecretKey";   // ключ для шифрации
         public static readonly int LIFETIME = 60; // время жизни токена - 1 час
         public static SymmetricSecurityKey GetSymmetricSecurityKey()
         {

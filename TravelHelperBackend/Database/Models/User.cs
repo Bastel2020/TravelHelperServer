@@ -21,5 +21,6 @@ namespace TravelHelperBackend.Database.Models
         }
         public string FirstName { get; set; }
         public string SecondName { get; set; }
+        public List<Trip> UserTrips { get; set; }
     }
 }

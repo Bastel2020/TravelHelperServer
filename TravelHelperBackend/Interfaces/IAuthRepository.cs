@@ -7,7 +7,7 @@ namespace TravelHelperBackend.Interfaces
     public interface IAuthRepository
     {
         public Task<bool> RegisterUser(RegisterUserDTO data);
-        public Task<ClaimsIdentity> AuthUser(LoginDataDTO data);
+        public Task<string> AuthUser(LoginDataDTO data);
         public Task<bool> LogOutUser(NoDataActionDTO data);
 
     }

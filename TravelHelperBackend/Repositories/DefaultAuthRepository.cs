@@ -7,6 +7,9 @@ using TravelHelperBackend.Interfaces;
 using TravelHelperBackend.Database;
 using TravelHelperBackend.Helpers;
 using System.Security.Claims;
+using System.IdentityModel.Tokens.Jwt;
+using TravelHelperBackend.Authentication;
+using Microsoft.IdentityModel.Tokens;
 
 namespace TravelHelperBackend.Repositories
 {
@@ -17,7 +20,7 @@ namespace TravelHelperBackend.Repositories
         {
             _db = db;
         }
-        public async Task<ClaimsIdentity> AuthUser(LoginDataDTO data)
+        public async Task<string> AuthUser(LoginDataDTO data)
         {
             var user = _db.Users.FirstOrDefault(u => u.Email == data.Email);
             if (user == null)
@@ -32,7 +35,26 @@ namespace TravelHelperBackend.Repositories
                 ClaimsIdentity claimsIdentity =
                 new ClaimsIdentity(claims, "Token", ClaimsIdentity.DefaultNameClaimType,
                     ClaimsIdentity.DefaultRoleClaimType);
-                return claimsIdentity;
+
+                var now = DateTime.UtcNow;
+                // создаем JWT-токен
+                var jwt = new JwtSecurityToken(
+                        issuer: AuthOptions.ISSUER,
+                        audience: AuthOptions.AUDIENCE,
+                        notBefore: now,
+                        claims: claimsIdentity.Claims,
+                        expires: now.Add(TimeSpan.FromMinutes(AuthOptions.LIFETIME)),
+                        signingCredentials: new SigningCredentials(AuthOptions.GetSymmetricSecurityKey(), SecurityAlgorithms.HmacSha256));
+                var encodedJwt = new JwtSecurityTokenHandler().WriteToken(jwt);
+
+                var response = new
+                {
+                    access_token = encodedJwt,
+                    username = claimsIdentity.Name,
+                    lifetime = AuthOptions.LIFETIME
+                };
+
+                return Newtonsoft.Json.JsonConvert.SerializeObject(response, Newtonsoft.Json.Formatting.Indented);
             }
             return null;
         }

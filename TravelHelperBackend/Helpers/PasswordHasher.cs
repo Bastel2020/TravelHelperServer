@@ -10,7 +10,7 @@ namespace TravelHelperBackend.Helpers
 {
     public class PasswordHasher
     {
-        private static SecuritySettings _secOptions = new SecuritySettings();
+        private static SecuritySettings _secOptions = new SecuritySettings(); //Всегда null!
         public PasswordHasher(IOptions<SecuritySettings> secOpts)
         {
             _secOptions = secOpts.Value;

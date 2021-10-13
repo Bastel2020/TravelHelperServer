@@ -22,9 +22,23 @@ namespace TravelHelperBackend.Controllers
         }
         // GET: api/<AuthController>
         [HttpGet("Register")]
-        public async Task<bool> RegisterAccount([FromForm] RegisterUserDTO registerData)
+        public async Task<IActionResult> RegisterAccount([FromForm] RegisterUserDTO registerData)
         {
-            return await _authRepository.RegisterUser(registerData);
+            if ((await _authRepository.RegisterUser(registerData)) == false)
+                return BadRequest("Ошибка в входных данных. Возможно, были не заполнены некоторые поля или аккаунт с таким Email и/или username был уже создан.");
+            var authResponse = await _authRepository.AuthUser(new LoginDataDTO() { Email = registerData.Email, Password = registerData.Password } );
+            if (authResponse == null)
+                return Unauthorized("Аккаунт был зарегистрирован, но произошла ошибка при входе. Обратитесь к администратору.");
+            else return Ok(authResponse);
+        }
+
+        [HttpGet("SignIn")]
+        public async Task<IActionResult> SignIn([FromForm] LoginDataDTO loginData)
+        {
+            var response = await _authRepository.AuthUser(loginData);
+            if (response == null)
+                return Unauthorized("Неправильный логин или пароль");
+            else return Ok(response);
         }
 
         // GET api/<AuthController>/5
