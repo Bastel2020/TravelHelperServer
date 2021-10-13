@@ -8,7 +8,7 @@ namespace TravelHelperBackend.Database.Models
 {
     public class Trip
     {
-        public long Id { get; set }
+        public long Id { get; set; }
         public User Owner { get; set; }
         public List<User> Editors { get; set; }
         public List<User> Viewers { get; set; }
@@ -26,12 +26,22 @@ namespace TravelHelperBackend.Database.Models
 
         public DateTime GetStartDate()
         {
-
+            if (TripDays != null && TripDays.Count > 0)
+                return TripDays.Select(td => td.Date)
+                    .OrderBy(d => d)
+                    .First();
+            else
+                return new DateTime();
         }
 
         public DateTime GetEndDate()
         {
-
+            if (TripDays != null && TripDays.Count > 0)
+                return TripDays.Select(td => td.Date)
+                    .OrderBy(d => d)
+                    .Last();
+            else
+                return new DateTime();
         }
     }
 }
