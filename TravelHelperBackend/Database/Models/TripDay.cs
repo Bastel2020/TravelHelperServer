@@ -9,6 +9,24 @@ namespace TravelHelperBackend.Database.Models
     {
         public long Id { get; set; }
         public DateTime Date { get; set; }
+        public Trip Parent { get; set; }
         public List<TripAction> Actions { get; set; }
+
+        /// <summary>
+        /// Создать экземляр TripDay с заполненным временем. Массив Actions - new List<TripAction>(). Id не заполняется, отдаётся на откуп БД.
+        /// </summary>
+        /// <param name="dateTime">Дата для TripDay.</param>
+        public TripDay(DateTime dateTime)
+        {
+            Date = dateTime;
+            Actions = new List<TripAction>();
+        }
+
+        /// <summary>
+        /// Создать экземляр TripDay без параметров.
+        /// </summary>
+        public TripDay()
+        {
+        }
     }
 }

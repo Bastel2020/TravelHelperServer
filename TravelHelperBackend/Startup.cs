@@ -30,13 +30,15 @@ namespace TravelHelperBackend
         public void ConfigureServices(IServiceCollection services)
         {
             services.Configure<SecuritySettings>(Configuration.GetSection("SecuritySettings"));
-            services.AddScoped<PasswordHasher>();
-
             services.Configure<DatabaseOptions>(Configuration.GetSection("Database"));
 
-            services.AddScoped<IAuthRepository, DefaultAuthRepository>();
+            services.AddScoped<PasswordHasher>();
 
             services.AddDbContext<DefaultDbContext>();
+
+            services.AddScoped<IAuthRepository, DefaultAuthRepository>();
+            services.AddScoped<ITripRepository, DefaultTripRepository>();
+
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(op =>
                 {
@@ -78,6 +80,7 @@ namespace TravelHelperBackend
 
             app.UseRouting();
 
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>

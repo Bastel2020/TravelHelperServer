@@ -10,7 +10,7 @@ namespace TravelHelperBackend.Database.Models
 {
     public class User
     {
-        public long Id { get; set; }
+        public int Id { get; set; }
         public string Username { get; set; }
         public string Email { get; set; }
         private string _password;
@@ -22,5 +22,6 @@ namespace TravelHelperBackend.Database.Models
         public string FirstName { get; set; }
         public string SecondName { get; set; }
         public List<Trip> UserTrips { get; set; }
+        public List<TripMember> TripRoles { get; set; }
     }
 }

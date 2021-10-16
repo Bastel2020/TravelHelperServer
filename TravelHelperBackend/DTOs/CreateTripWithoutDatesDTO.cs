@@ -3,13 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace TravelHelperBackend.Database.Models
+namespace TravelHelperBackend.DTOs
 {
-    public class City
+    public class CreateTripWithoutDatesDTO
     {
-        public int Id { get; set; }
+        public int TripDestanation { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
-        public List<Trip> PlannedTrips { get; set; }
     }
 }
