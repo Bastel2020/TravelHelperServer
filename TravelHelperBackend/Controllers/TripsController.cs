@@ -39,5 +39,15 @@ namespace TravelHelperBackend.Controllers
                 return BadRequest("Ошибка при генерации кода доступа. Возможно, вы не имеете доступа к этой поездке.");
             else return Ok(Newtonsoft.Json.JsonConvert.SerializeObject(result, Newtonsoft.Json.Formatting.Indented));
         }
+
+        [Authorize]
+        [HttpGet("Join")]
+        public async Task<IActionResult> JoinByInvite([FromForm] string inviteCode)
+        {
+            var result = await _tripRepository.JoinByInviteCode(inviteCode, User.Identity.Name);
+            if (result == null)
+                return BadRequest("Ошибка при при присоединении к поездке. Возможно, вы ошиблись при вводе кода.");
+            else return Ok(Newtonsoft.Json.JsonConvert.SerializeObject(result, Newtonsoft.Json.Formatting.Indented));
+        }
     }
 }

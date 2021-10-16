@@ -15,5 +15,16 @@ namespace TravelHelperBackend.Database.Models
         public Trip Trip { get; set; }
 
         public TripRolesEnum Role { get; set; }
+
+        public TripMember() { }
+
+        public TripMember(User userToAdd, Trip tripToAdd, TripRolesEnum role)
+        {
+            User = userToAdd;
+            Trip = tripToAdd;
+            UserId = userToAdd.Id;
+            TripId = tripToAdd.Id;
+            Role = role;
+        }
     }
 }

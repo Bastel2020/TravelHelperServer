@@ -26,7 +26,7 @@ namespace TravelHelperBackend.Repositories
 
         public async Task<TripInfoDTO> CreateTrip(CreateTripDTO data, string email)
         {
-            var currentUser = _db.Users.FirstOrDefault(u => u.Email == email);
+            var currentUser = await _db.Users.FirstOrDefaultAsync(u => u.Email == email);
             if (currentUser == null || data.Name == null)
                 return null;
 
@@ -50,7 +50,7 @@ namespace TravelHelperBackend.Repositories
 
         public async Task<TripInfoDTO> CreateTripWithoutDates(CreateTripWithoutDatesDTO data, string email)
         {
-            var currentUser = _db.Users.FirstOrDefault(u => u.Email == email);
+            var currentUser = await _db.Users.FirstOrDefaultAsync(u => u.Email == email);
             if (currentUser == null)
                 return null;
 
@@ -73,24 +73,23 @@ namespace TravelHelperBackend.Repositories
 
         public async Task<TripInfoDTO> GetTripInfo(int tripId, string email)
         {
-            var trip = _db.Trips
+            var trip = await _db.Trips
                 .Include(t => t.Members)
                 .Include(t => t.MemberRoles)
                 .Include(t => t.TripDays)
                 .ThenInclude(td => td.Actions)
                 .Include(t => t.TripDestanation)
-                .FirstOrDefault(t => t.Id == tripId);
+                .FirstOrDefaultAsync(t => t.Id == tripId);
             if (trip == null || trip.Members.FirstOrDefault(u => u.Email == email) == null)
                 return null;
             return new TripInfoDTO(trip);
-
         }
 
         public async Task<TripInfoDTO> GenerateInviteCode(int tripId, string email)
         {
-            var trip = _db.Trips
+            var trip = await _db.Trips
                 .Include(t => t.Members)
-                .FirstOrDefault(t => t.Id == tripId);
+                .FirstOrDefaultAsync(t => t.Id == tripId);
             if (trip == null || trip.Members.FirstOrDefault(u => u.Email == email) == null)
                 return null;
 
@@ -106,6 +105,57 @@ namespace TravelHelperBackend.Repositories
             await _db.SaveChangesAsync();
 
             return await GetTripInfo(tripId, email);
+        }
+
+        public async Task<TripInfoDTO> JoinByInviteCode(string invite, string email)
+        {
+            var id = 0;
+            try { id = int.Parse(invite.Split(':')[0]); }
+            catch { return null; }
+
+            var trip = await _db.Trips
+                .Include(t => t.Members)
+                .Include(t => t.MemberRoles)
+                .FirstOrDefaultAsync(t => t.Id == id);
+            if (trip == null || trip.InviteCode != invite)
+                return null;
+
+            if (!await AddUserToTripWithoutСheck(trip, email))
+                return null;
+
+            return await GetTripInfo(trip.Id, email);
+        }
+
+        public async Task<bool> AddUserToTrip(string emailToInvite, int tripId, string email)
+        {
+            var trip = await _db.Trips
+                .Include(t => t.Members)
+                .Include(t => t.MemberRoles)
+                .FirstOrDefaultAsync(t => t.Id == tripId);
+
+            
+            var inviter = trip.Members.FirstOrDefault(u => u.Email == email);
+            if (inviter == null)
+                return false;
+
+            return await AddUserToTripWithoutСheck(trip, emailToInvite);
+
+        }
+
+        public async Task<bool> AddUserToTripWithoutСheck(Trip tripToAdd, string emailToAdd)
+        {
+            var userToAdd = await _db.Users.FirstOrDefaultAsync(u => u.Email == emailToAdd);
+            if (userToAdd == null || tripToAdd.Members.Contains(userToAdd))
+                return false;
+
+            tripToAdd.Members.Add(userToAdd);
+            await _db.SaveChangesAsync();
+
+            tripToAdd.MemberRoles
+                .First(mr => mr.UserId == userToAdd.Id)
+                .Role = Enums.TripRolesEnum.Viewer;
+            await _db.SaveChangesAsync();
+            return true;
         }
     }
 }

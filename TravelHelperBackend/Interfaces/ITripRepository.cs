@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
+using TravelHelperBackend.Database.Models;
 using TravelHelperBackend.DTOs;
 
 namespace TravelHelperBackend.Interfaces
@@ -14,5 +12,8 @@ namespace TravelHelperBackend.Interfaces
         public Task<bool> AddTripDay(AddTripDayDTO data, string email);
         public Task<TripInfoDTO> GetTripInfo(int tripId, string email);
         public Task<TripInfoDTO> GenerateInviteCode(int tripId, string email);
+        public Task<TripInfoDTO> JoinByInviteCode(string invite, string email);
+        public Task<bool> AddUserToTrip(string emailToInvite, int tripId, string email);
+        public Task<bool> AddUserToTripWithoutСheck(Trip tripToAdd, string emailToAdd);
     }
 }
