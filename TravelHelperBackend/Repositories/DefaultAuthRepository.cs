@@ -10,6 +10,7 @@ using System.Security.Claims;
 using System.IdentityModel.Tokens.Jwt;
 using TravelHelperBackend.Authentication;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.EntityFrameworkCore;
 
 namespace TravelHelperBackend.Repositories
 {
@@ -22,14 +23,14 @@ namespace TravelHelperBackend.Repositories
         }
         public async Task<string> AuthUser(LoginDataDTO data)
         {
-            var user = _db.Users.FirstOrDefault(u => u.Email == data.Email);
+            var user = await _db.Users.FirstOrDefaultAsync(u => u.Email.ToLower() == data.Email.ToLower());
             if (user == null)
                 return null;
-            if (user.Password == PasswordHasher.GetSHA512HashedPassword(data.Password, data.Email))
+            if (user.Password == PasswordHasher.GetSHA512HashedPassword(data.Password, user.Email))
             {
                 var claims = new List<Claim>
                 {
-                    new Claim(ClaimsIdentity.DefaultNameClaimType, data.Email),
+                    new Claim(ClaimsIdentity.DefaultNameClaimType, user.Email),
                     new Claim(ClaimsIdentity.DefaultRoleClaimType, "user")
                 };
                 ClaimsIdentity claimsIdentity =
@@ -68,7 +69,7 @@ namespace TravelHelperBackend.Repositories
         {
             try
             {
-                if (_db.Users.FirstOrDefault(x => x.Email == data.Email) != null || _db.Users.FirstOrDefault(x => x.Username == data.Username) != null)
+                if (await _db.Users.FirstOrDefaultAsync(x => x.Email == data.Email) != null || await _db.Users.FirstOrDefaultAsync(x => x.Username == data.Username) != null)
                     return false;
                 _db.Users.Add(new Database.Models.User { Email = data.Email, Password = data.Password, Username = data.Username, FirstName = data.FirstName, SecondName = data.SecondName });
                 await _db.SaveChangesAsync();

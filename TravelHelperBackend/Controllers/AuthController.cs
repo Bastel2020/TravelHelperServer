@@ -21,7 +21,7 @@ namespace TravelHelperBackend.Controllers
             _authRepository = repository;
         }
         // GET: api/<AuthController>
-        [HttpGet("Register")]
+        [HttpPost("Register")]
         public async Task<IActionResult> RegisterAccount([FromForm] RegisterUserDTO registerData)
         {
             if ((await _authRepository.RegisterUser(registerData)) == false)
@@ -37,33 +37,8 @@ namespace TravelHelperBackend.Controllers
         {
             var response = await _authRepository.AuthUser(loginData);
             if (response == null)
-                return Unauthorized("Неправильный логин или пароль");
+                return Unauthorized("Неправильный логин или пароль.");
             else return Ok(response);
-        }
-
-        // GET api/<AuthController>/5
-        [HttpGet("{id}")]
-        public string Get(int id)
-        {
-            return "value";
-        }
-
-        // POST api/<AuthController>
-        [HttpPost]
-        public void Post([FromBody] string value)
-        {
-        }
-
-        // PUT api/<AuthController>/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
-        {
-        }
-
-        // DELETE api/<AuthController>/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
-        {
         }
     }
 }

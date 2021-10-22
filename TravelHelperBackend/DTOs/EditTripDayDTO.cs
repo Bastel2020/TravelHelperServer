@@ -6,13 +6,11 @@ using System.Threading.Tasks;
 
 namespace TravelHelperBackend.DTOs
 {
-    public class ChangePasswordDTO
+    public class EditTripDayDTO
     {
         [Required]
-        public string OldPassword { get; set; }
+        public int Id { get; set; }
         [Required]
-        public string NewPassword { get; set; }
-        [Required]
-        public string NewPasswordRepeat { get; set; }
+        public DateTime Date { get; set; }
     }
 }

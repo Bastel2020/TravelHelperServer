@@ -19,9 +19,15 @@ namespace TravelHelperBackend.Repositories
             _db = db;
         }
 
-        public Task<bool> AddTripDay(AddTripDayDTO data, string email)
+        public async Task<Trip> GetTrip(int id)
         {
-            throw new NotImplementedException();
+            return await _db.Trips
+                .Include(t => t.Members)
+                .Include(t => t.MemberRoles)
+                .Include(t => t.TripDays)
+                .ThenInclude(td => td.Actions)
+                .Include(t => t.TripDestination)
+                .FirstOrDefaultAsync(t => t.Id == id);
         }
 
         public async Task<TripInfoDTO> CreateTrip(CreateTripDTO data, string email)
@@ -40,7 +46,7 @@ namespace TravelHelperBackend.Repositories
             if (destanationCity == null)
                 return null;
 
-            var newTrip = new Trip() { Name = data.Name, Description = data.Description, Members = new List<User>() { currentUser }, TripDays = TripDays, TripDestanation = destanationCity};
+            var newTrip = new Trip() { Name = data.Name, Description = data.Description, Members = new List<User>() { currentUser }, TripDays = TripDays, TripDestination = destanationCity};
             _db.Trips.Add(newTrip);
 
             await _db.SaveChangesAsync();
@@ -58,7 +64,7 @@ namespace TravelHelperBackend.Repositories
             if (destanationCity == null)
                 return null;
 
-            var newTrip = new Trip() { Name = data.Name, Description = data.Description, Members = new List<User>() { currentUser }, TripDestanation = destanationCity };
+            var newTrip = new Trip() { Name = data.Name, Description = data.Description, Members = new List<User>() { currentUser }, TripDestination = destanationCity };
             _db.Trips.Add(newTrip);
 
             await _db.SaveChangesAsync();
@@ -66,20 +72,42 @@ namespace TravelHelperBackend.Repositories
             return await GetTripInfo(newTrip.Id, email);
         }
 
-        public Task<bool> EditTripInfo(EditTripInfoDTO data, string email)
+        public async Task<TripInfoDTO> EditTripInfo(EditTripInfoDTO data, string email)
         {
-            throw new NotImplementedException();
+            var currentUser = await _db.Users.FirstOrDefaultAsync(u => u.Email == email);
+            if (currentUser == null)
+                return null;
+
+            var trip = await GetTrip(data.Id);
+            if (trip == null || trip.Members.FirstOrDefault(u => u.Email == email) == null)
+                return null;
+
+            var editorRole = trip.MemberRoles.FirstOrDefault(mr => mr.UserId == currentUser.Id);
+            if (editorRole == null || editorRole.Role == Enums.TripRolesEnum.Viewer)
+                return null;
+
+            if (data.Destination != -1)
+            {
+                var newCity = await _db.Cities.FirstOrDefaultAsync(c => c.Id == data.Id);
+                if (newCity == null)
+                    return null;
+                throw new NotImplementedException("Изменение пункта назначения пока недоступно"); //Необходимо реализовать логику удаления всех Actions, связанных со старым городом, из поездки.
+                //trip.TripDestination = newCity;
+            }
+
+            if (data.Name != null)
+                trip.Name = data.Name;
+            if (data.Description != null)
+                trip.Description = data.Description;
+
+            await _db.SaveChangesAsync();
+
+            return await GetTripInfo(trip.Id, email);
         }
 
         public async Task<TripInfoDTO> GetTripInfo(int tripId, string email)
         {
-            var trip = await _db.Trips
-                .Include(t => t.Members)
-                .Include(t => t.MemberRoles)
-                .Include(t => t.TripDays)
-                .ThenInclude(td => td.Actions)
-                .Include(t => t.TripDestanation)
-                .FirstOrDefaultAsync(t => t.Id == tripId);
+            var trip = await GetTrip(tripId);
             if (trip == null || trip.Members.FirstOrDefault(u => u.Email == email) == null)
                 return null;
             return new TripInfoDTO(trip);
@@ -87,9 +115,7 @@ namespace TravelHelperBackend.Repositories
 
         public async Task<TripInfoDTO> GenerateInviteCode(int tripId, string email)
         {
-            var trip = await _db.Trips
-                .Include(t => t.Members)
-                .FirstOrDefaultAsync(t => t.Id == tripId);
+            var trip = await GetTrip(tripId);
             if (trip == null || trip.Members.FirstOrDefault(u => u.Email == email) == null)
                 return null;
 
@@ -109,14 +135,11 @@ namespace TravelHelperBackend.Repositories
 
         public async Task<TripInfoDTO> JoinByInviteCode(string invite, string email)
         {
-            var id = 0;
+            int id;
             try { id = int.Parse(invite.Split(':')[0]); }
             catch { return null; }
 
-            var trip = await _db.Trips
-                .Include(t => t.Members)
-                .Include(t => t.MemberRoles)
-                .FirstOrDefaultAsync(t => t.Id == id);
+            var trip = await GetTrip(id);
             if (trip == null || trip.InviteCode != invite)
                 return null;
 
@@ -128,18 +151,34 @@ namespace TravelHelperBackend.Repositories
 
         public async Task<bool> AddUserToTrip(string emailToInvite, int tripId, string email)
         {
-            var trip = await _db.Trips
-                .Include(t => t.Members)
-                .Include(t => t.MemberRoles)
-                .FirstOrDefaultAsync(t => t.Id == tripId);
+            var trip = await GetTrip(tripId);
 
-            
+
             var inviter = trip.Members.FirstOrDefault(u => u.Email == email);
             if (inviter == null)
                 return false;
 
             return await AddUserToTripWithoutСheck(trip, emailToInvite);
+        }
 
+        public async Task<bool> DeleteTrip(int tripId, string email)
+        {
+            var currentUser = await _db.Users.FirstOrDefaultAsync(u => u.Email == email);
+            if (currentUser == null)
+                return false;
+
+            var trip = await GetTrip(tripId);
+            if (trip == null)
+                return false;
+
+            var deleterRole = trip.MemberRoles.FirstOrDefault(mr => mr.UserId == currentUser.Id);
+            if (deleterRole == null || deleterRole.Role != Enums.TripRolesEnum.Owner)
+                return false;
+
+            _db.Trips.Remove(trip);
+            await _db.SaveChangesAsync();
+
+            return true;
         }
 
         public async Task<bool> AddUserToTripWithoutСheck(Trip tripToAdd, string emailToAdd)

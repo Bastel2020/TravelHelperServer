@@ -12,7 +12,7 @@ namespace TravelHelperBackend.Database.Models
         public bool OwnerLeaves { get; set; }
         public List<User> Members { get; set; }
         public List<TripMember> MemberRoles { get; set; }
-        public City TripDestanation { get; set; }
+        public City TripDestination { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
         /// <summary>
@@ -26,7 +26,7 @@ namespace TravelHelperBackend.Database.Models
 
         public string GetCityName()
         {
-            return TripDestanation.Name;
+            return TripDestination.Name;
         }
 
         public DateTime GetStartDate()
@@ -47,6 +47,11 @@ namespace TravelHelperBackend.Database.Models
                     .Last();
             else
                 return new DateTime();
+        }
+
+        public override string ToString()
+        {
+            return $"Id:{Id}, {Name}";
         }
     }
 }

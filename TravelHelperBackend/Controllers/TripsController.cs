@@ -15,13 +15,15 @@ namespace TravelHelperBackend.Controllers
     public class TripsController : ControllerBase
     {
         private ITripRepository _tripRepository;
-        public TripsController(ITripRepository repository)
+        private ITripDayRepository _tripDayRepository;
+        public TripsController(ITripRepository tripRepository, ITripDayRepository tripDayRepository)
         {
-            _tripRepository = repository;
+            _tripRepository = tripRepository;
+            _tripDayRepository = tripDayRepository;
         }
 
         [Authorize]
-        [HttpGet("Create")]
+        [HttpPost("Create")]
         public async Task<IActionResult> CreateTrip([FromForm] CreateTripDTO inputData)
         {
             var result = await _tripRepository.CreateTrip(inputData, User.Identity.Name);
@@ -41,13 +43,103 @@ namespace TravelHelperBackend.Controllers
         }
 
         [Authorize]
-        [HttpGet("Join")]
+        [HttpPost("Join")]
         public async Task<IActionResult> JoinByInvite([FromForm] string inviteCode)
         {
             var result = await _tripRepository.JoinByInviteCode(inviteCode, User.Identity.Name);
             if (result == null)
                 return BadRequest("Ошибка при при присоединении к поездке. Возможно, вы ошиблись при вводе кода.");
             else return Ok(Newtonsoft.Json.JsonConvert.SerializeObject(result, Newtonsoft.Json.Formatting.Indented));
+        }
+
+        [Authorize]
+        [HttpPost("EditTrip")]
+        public async Task<IActionResult> EditTrip([FromForm] EditTripInfoDTO dataToEdit)
+        {
+            var result = await _tripRepository.EditTripInfo(dataToEdit, User.Identity.Name);
+            if (result == null)
+                return BadRequest("Ошибка при при изменении поездки. Возможно, у вас недостаточно прав или вы ошиблись при вводе данных.");
+            else return Ok(Newtonsoft.Json.JsonConvert.SerializeObject(result, Newtonsoft.Json.Formatting.Indented));
+        }
+
+        [Authorize]
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetTripInfo(int id)
+        {
+            var result = await _tripRepository.GetTripInfo(id, User.Identity.Name);
+            if (result == null)
+                return Unauthorized("Ошибка доступа к поездке.");
+            else return Ok(Newtonsoft.Json.JsonConvert.SerializeObject(result, Newtonsoft.Json.Formatting.Indented));
+        }
+
+        [Authorize]
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteTrip(int id)
+        {
+            var result = await _tripRepository.DeleteTrip(id, User.Identity.Name);
+            if (result == false)
+                return Unauthorized("Ошибка при удалении поездки. Возможно, вы не можете удалять эту поездку.");
+            else return Ok(Newtonsoft.Json.JsonConvert.SerializeObject(result, Newtonsoft.Json.Formatting.Indented));
+        }
+
+        [Authorize]
+        [HttpPost("AddDay")]
+        public async Task<IActionResult> AddTripDay([FromForm] AddTripDayDTO data)
+        {
+            var result = await _tripDayRepository.AddTripDay(data, User.Identity.Name);
+            if (result == null)
+                return BadRequest("Ошибка создания дня. Возможно, вы не можете редактировать поездку.");
+            else return Ok(Newtonsoft.Json.JsonConvert.SerializeObject(result, Newtonsoft.Json.Formatting.Indented));
+        }
+
+        [Authorize]
+        [HttpDelete("DeleteDay")]
+        public async Task<IActionResult> DeleteTripDay([FromForm] long id)
+        {
+            var result = await _tripDayRepository.DeleteTripDay(id, User.Identity.Name);
+            if (result == null)
+                return Unauthorized("Ошибка удаления дня. Возможно, вы не можете редактировать поездку.");
+            else return Ok(Newtonsoft.Json.JsonConvert.SerializeObject(result, Newtonsoft.Json.Formatting.Indented));
+        }
+
+        [Authorize]
+        [HttpPost("EditTripDay")]
+        public async Task<IActionResult> EditAction([FromForm] EditTripDayDTO data)
+        {
+            var result = await _tripDayRepository.EditTripDay(data, User.Identity.Name);
+            if (result == null)
+                return BadRequest("Ошибка редактирования дня. Возможно, вы не можете редактировать поездку.");
+            else return Ok(Newtonsoft.Json.JsonConvert.SerializeObject(result, Newtonsoft.Json.Formatting.Indented));
+        }
+
+        [Authorize]
+        [HttpPost("AddAction")]
+        public async Task<IActionResult> AddAction([FromForm] AddActionDTO data)
+        {
+            var result = await _tripDayRepository.AddAction(data, User.Identity.Name);
+            if (result == null)
+                return BadRequest("Ошибка добавления события. Возможно, вы не можете редактировать поездку.");
+            else return Ok(Newtonsoft.Json.JsonConvert.SerializeObject(result, Newtonsoft.Json.Formatting.Indented));
+        }
+
+        [Authorize]
+        [HttpDelete("DeleteAction")]
+        public async Task<IActionResult> DeleteAction([FromForm] long id)
+        {
+            var result = await _tripDayRepository.DeleteAction(id, User.Identity.Name);
+            if (result == null)
+                return Unauthorized("Ошибка удаления события. Возможно, вы не можете редактировать поездку.");
+            else return Ok(Newtonsoft.Json.JsonConvert.SerializeObject(result, Newtonsoft.Json.Formatting.Indented));
+        }
+
+        [Authorize]
+        [HttpPost("EditAction")]
+        public async Task<IActionResult> EditAction([FromForm] EditActionDTO data)
+        {
+            var result = await _tripDayRepository.EditAction(data, User.Identity.Name);
+            if (result == null)
+                return BadRequest("Ошибка редактирования события. Возможно, вы не можете редактировать поездку.");
+            return Ok(Newtonsoft.Json.JsonConvert.SerializeObject(result, Newtonsoft.Json.Formatting.Indented));
         }
     }
 }

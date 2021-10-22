@@ -48,7 +48,7 @@ namespace TravelHelperBackend.Database
                 });
 
             modelBuilder.Entity<Trip>()
-                .HasOne(t => t.TripDestanation)
+                .HasOne(t => t.TripDestination)
                 .WithMany(c => c.PlannedTrips);
 
             modelBuilder.Entity<Trip>()
@@ -61,7 +61,7 @@ namespace TravelHelperBackend.Database
 
             modelBuilder.Entity<City>()
                 .HasMany(c => c.PlannedTrips)
-                .WithOne(t => t.TripDestanation);
+                .WithOne(t => t.TripDestination);
         }
     }
 }

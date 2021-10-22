@@ -14,6 +14,7 @@ using TravelHelperBackend.Database;
 using TravelHelperBackend.Helpers;
 using TravelHelperBackend.Interfaces;
 using TravelHelperBackend.Repositories;
+using Microsoft.OpenApi.Models;
 
 namespace TravelHelperBackend
 {
@@ -37,7 +38,9 @@ namespace TravelHelperBackend
             services.AddDbContext<DefaultDbContext>();
 
             services.AddScoped<IAuthRepository, DefaultAuthRepository>();
+            services.AddScoped<IUserRepository, DefaultUserRepository>();
             services.AddScoped<ITripRepository, DefaultTripRepository>();
+            services.AddScoped<ITripDayRepository, DefaultTripDayRepository>();
 
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(op =>
@@ -60,6 +63,10 @@ namespace TravelHelperBackend
 
             services.AddControllersWithViews();
 
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "My API", Version = "v1" });
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -83,11 +90,18 @@ namespace TravelHelperBackend
             app.UseAuthentication();
             app.UseAuthorization();
 
+            app.UseSwagger();
+
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllerRoute(
                     name: "default",
                     pattern: "{controller=Home}/{action=Index}/{id?}");
+            });
+
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("v1/swagger.json", "My API V1");
             });
         }
     }

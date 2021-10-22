@@ -7,5 +7,8 @@ namespace TravelHelperBackend.DTOs
 {
     public class EditUserProfileDTO
     {
+        public string Username { get; set; }
+        public string FirstName { get; set; }
+        public string SecondName { get; set; }
     }
 }

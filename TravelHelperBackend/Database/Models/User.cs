@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using System.Security.Cryptography;
 using System.Text;
 using TravelHelperBackend.Helpers;
+using System.Text.Json.Serialization;
 
 namespace TravelHelperBackend.Database.Models
 {
@@ -13,7 +14,9 @@ namespace TravelHelperBackend.Database.Models
         public int Id { get; set; }
         public string Username { get; set; }
         public string Email { get; set; }
+        [JsonIgnore]
         private string _password;
+        [JsonIgnore]
         public string Password { get => _password;  set
             {
                 _password = PasswordHasher.GetSHA512HashedPassword(value, Email);
@@ -22,6 +25,7 @@ namespace TravelHelperBackend.Database.Models
         public string FirstName { get; set; }
         public string SecondName { get; set; }
         public List<Trip> UserTrips { get; set; }
+        [JsonIgnore]
         public List<TripMember> TripRoles { get; set; }
     }
 }
