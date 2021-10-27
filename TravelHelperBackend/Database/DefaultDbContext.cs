@@ -16,6 +16,7 @@ namespace TravelHelperBackend.Database
         public DbSet<TripDay> TripDays { get; set; }
         public DbSet<TripAction> TripActions { get; set; }
         public DbSet<City> Cities { get; set; }
+        public DbSet<Poll> Polls { get; set; }
         public DefaultDbContext(IOptions<DatabaseOptions> dbOptions)
         {
             _dbOptions = dbOptions.Value;
@@ -42,7 +43,6 @@ namespace TravelHelperBackend.Database
                     .HasForeignKey(pt => pt.UserId),
                 j =>
                 {
-                    //j.Property(pt => pt.Role).HasDefaultValueSql(Enums.TripRolesEnum.Viewer.ToString()); ///ToString может не сработать
                     j.HasKey(t => new { t.TripId, t.UserId });
                     j.ToTable("TripMember");
                 });
@@ -62,6 +62,18 @@ namespace TravelHelperBackend.Database
             modelBuilder.Entity<City>()
                 .HasMany(c => c.PlannedTrips)
                 .WithOne(t => t.TripDestination);
+
+            modelBuilder.Entity<Trip>()
+                .HasMany(t => t.Polls)
+                .WithOne(p => p.Parent);
+
+            modelBuilder.Entity<Poll>()
+                .HasMany(p => p.Variants)
+                .WithOne(v => v.Parent);
+
+            modelBuilder.Entity<PollVariants>()
+                .HasMany(pv => pv.Votes)
+                .WithMany(u => u.VotesInPolls);
         }
     }
 }
