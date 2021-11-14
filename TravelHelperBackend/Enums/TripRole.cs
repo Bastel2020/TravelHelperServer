@@ -1,6 +1,6 @@
 ﻿namespace TravelHelperBackend.Enums
 {
-    public enum TripRolesEnum
+    public enum TripRole
     {
         Owner,
         Editor,

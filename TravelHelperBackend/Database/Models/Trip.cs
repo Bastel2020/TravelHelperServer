@@ -12,6 +12,7 @@ namespace TravelHelperBackend.Database.Models
         public bool OwnerLeaves { get; set; }
         public List<User> Members { get; set; }
         public List<TripMember> MemberRoles { get; set; }
+        public List<Poll> Polls { get; set; }
         public City TripDestination { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
@@ -19,6 +20,7 @@ namespace TravelHelperBackend.Database.Models
         /// Код, который нужно ввести пользователю, чтобы присоединиться к поездке. Если == null, то присоединиться к поездке по коду нельзя.
         /// </summary>
         public string InviteCode { get; set; }
+        public TripRole RequeidRoleToAccessInviteCode { get; set; }
         /// <summary>
         /// Массив дней путешествия: в нём хранится информация о событиях в каждом из дней.
         /// </summary>
