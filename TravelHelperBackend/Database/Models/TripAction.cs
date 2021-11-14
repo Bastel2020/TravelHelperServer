@@ -13,7 +13,7 @@ namespace TravelHelperBackend.Database.Models
         public string Name { get; set; }
         public string Description { get; set; }
         public string Location { get; set; }
-        public List<string> Files { get; set; }
+        public List<FileModel> Files { get; set; }
         public TimeSpan TimeOfAction { get; set; }
         [JsonIgnore]
         public TripDay Parent { get; set; }

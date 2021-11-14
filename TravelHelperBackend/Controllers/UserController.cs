@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using TravelHelperBackend.Interfaces;
 using TravelHelperBackend.DTOs;
+using Microsoft.AspNetCore.Authorization;
 
 namespace TravelHelperBackend.Controllers
 {
@@ -19,6 +20,7 @@ namespace TravelHelperBackend.Controllers
             _userRepository = repository;
         }
         // GET: api/<AuthController>
+        [Authorize]
         [HttpGet]
         public async Task<IActionResult> GetAccount()
         {
@@ -30,8 +32,9 @@ namespace TravelHelperBackend.Controllers
             return Ok(Newtonsoft.Json.JsonConvert.SerializeObject(response, Newtonsoft.Json.Formatting.Indented));
         }
 
+        [Authorize]
         [HttpPost("Edit")]
-        public async Task<IActionResult> EditAccount([FromForm] EditUserProfileDTO data)
+        public async Task<IActionResult> EditAccount([FromBody] EditUserProfileDTO data)
         {
             var response = await _userRepository.EditProfile(data, User.Identity.Name);
 
@@ -41,8 +44,9 @@ namespace TravelHelperBackend.Controllers
             return Ok(Newtonsoft.Json.JsonConvert.SerializeObject(response, Newtonsoft.Json.Formatting.Indented));
         }
 
+        [Authorize]
         [HttpPost("ChangePassword")]
-        public async Task<IActionResult> ChangePassword([FromForm] ChangePasswordDTO data)
+        public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordDTO data)
         {
             var response = await _userRepository.ChangePassword(data, User.Identity.Name);
 
@@ -50,6 +54,44 @@ namespace TravelHelperBackend.Controllers
                 return BadRequest("Невозможно обновить пароль. Проверьте правильность введённых данных.");
 
             return Ok("Пароль успешно обновлен.");
+        }
+
+        [Authorize]
+        [HttpPost("UploadAvatar")]
+        public async Task<IActionResult> UploadAvatar(IFormFile uploadedFile)
+        {
+            
+            var response = await _userRepository.UploadAvatar(uploadedFile, User.Identity.Name);
+
+            if (response == false)
+                return BadRequest("Невозможно обновить аватар. Размер файла не должен быть больше 1 Мб.");
+
+            return Ok("Аватар успешно загружен.");
+        }
+
+        [Authorize]
+        [HttpDelete("DeleteAvatar")]
+        public async Task<IActionResult> DeleteAvatar()
+        {
+
+            var response = await _userRepository.DeleteAvatar(User.Identity.Name);
+
+            if (response == false)
+                return BadRequest("Невозможно обновить аватар. Файл должен быть изображением и не должен быть более 1 Мб.");
+
+            return Ok("Аватар успешно удалён.");
+        }
+
+        [HttpGet("GetAvatar")]
+        public async Task<IActionResult> GetAvatar([FromBody] int userId)
+        {
+
+            var response = await _userRepository.GetAvatar(userId);
+
+            if (response == null)
+                return BadRequest("Невозможно получить аватар. Возможно, вы ошиблись в Id.");
+
+            return File(response, "image/jpeg");
         }
     }
 }

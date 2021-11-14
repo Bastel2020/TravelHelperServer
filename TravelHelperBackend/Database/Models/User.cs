@@ -27,5 +27,9 @@ namespace TravelHelperBackend.Database.Models
         public List<Trip> UserTrips { get; set; }
         [JsonIgnore]
         public List<TripMember> TripRoles { get; set; }
+        [JsonIgnore]
+        public FileModel Avatar { get; set; }
+        [JsonIgnore]
+        public List<Place> Favorites { get; set; }
     }
 }

@@ -30,6 +30,8 @@ namespace TravelHelperBackend
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddCors();
+
             services.Configure<SecuritySettings>(Configuration.GetSection("SecuritySettings"));
             services.Configure<DatabaseOptions>(Configuration.GetSection("Database"));
 
@@ -41,6 +43,7 @@ namespace TravelHelperBackend
             services.AddScoped<IUserRepository, DefaultUserRepository>();
             services.AddScoped<ITripRepository, DefaultTripRepository>();
             services.AddScoped<ITripDayRepository, DefaultTripDayRepository>();
+            services.AddScoped<IPlacesRepository, DefaultPlacesRepository>();
 
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(op =>
@@ -86,6 +89,12 @@ namespace TravelHelperBackend
             app.UseStaticFiles();
 
             app.UseRouting();
+
+
+            app.UseCors(builder => builder
+                .AllowAnyOrigin()
+                .AllowAnyMethod()
+                .AllowAnyHeader());
 
             app.UseAuthentication();
             app.UseAuthorization();

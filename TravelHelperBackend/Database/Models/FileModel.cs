@@ -5,13 +5,10 @@ using System.Threading.Tasks;
 
 namespace TravelHelperBackend.Database.Models
 {
-    public class City
+    public class FileModel
     {
         public int Id { get; set; }
         public string Name { get; set; }
-        public string Description { get; set; }
-        public List<Trip> PlannedTrips { get; set; }
-        public List<FileModel> Photos { get; set; }
-        public List<PlaceCategory> Places { get; set; }
+        public string Path { get; set; }
     }
 }

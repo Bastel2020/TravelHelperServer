@@ -1,6 +1,8 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using TravelHelperBackend.Database;
@@ -62,6 +64,59 @@ namespace TravelHelperBackend.Repositories
                 return null;
 
             return new UserInfoDTO(user);
+        }
+
+        public async Task<bool> UploadAvatar(IFormFile file, string email)
+        {
+            var fileExtensionParts = file.FileName.Split('.');
+            string fileExtension;
+            if (fileExtensionParts.Length < 2)
+                return false;
+            else
+                fileExtension = fileExtensionParts[fileExtensionParts.Length - 1].ToLower();
+            if (fileExtension != "jpg" && fileExtension != "jpeg" && fileExtension != "png")
+                return false;
+
+            var user = await _db.Users.FirstOrDefaultAsync(u => u.Email == email);
+            if (user == null || file.Length > 1000000)
+                return false;
+
+            string path = $"/userFiles/Users/{user.Id}/avatar.{fileExtension}";
+            using (var fileStream = new FileStream(Environment.CurrentDirectory + path, FileMode.Create))
+            {
+                await file.CopyToAsync(fileStream);
+            }
+            FileModel avatarModel = new FileModel { Name = file.FileName, Path = path };
+            user.Avatar = avatarModel;
+            await _db.SaveChangesAsync();
+
+            return true;
+        }
+
+        public async Task<bool> DeleteAvatar(string email)
+        {
+            var user = await _db.Users.FirstOrDefaultAsync(u => u.Email == email);
+            if (user == null)
+                return false;
+
+            try
+            {
+                File.Delete(user.Avatar.Path);
+                _db.Files.Remove(user.Avatar);
+
+                return true;
+            }
+            catch { return false; }
+        }
+
+        public async Task<byte[]> GetAvatar(int userId)
+        {
+            var user = await _db.Users.FirstOrDefaultAsync(u => u.Id == userId);
+            if (user == null)
+                return null;
+            if (user.Avatar == null)
+                return null;
+            return await File.ReadAllBytesAsync(user.Avatar.Path);
         }
     }
 }
