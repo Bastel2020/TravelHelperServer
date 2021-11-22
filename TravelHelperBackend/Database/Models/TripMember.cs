@@ -14,11 +14,11 @@ namespace TravelHelperBackend.Database.Models
         public int TripId { get; set; }
         public Trip Trip { get; set; }
 
-        public TripRolesEnum Role { get; set; }
+        public TripRole Role { get; set; }
 
         public TripMember() { }
 
-        public TripMember(User userToAdd, Trip tripToAdd, TripRolesEnum role)
+        public TripMember(User userToAdd, Trip tripToAdd, TripRole role)
         {
             User = userToAdd;
             Trip = tripToAdd;

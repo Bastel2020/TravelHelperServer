@@ -6,6 +6,7 @@ using System.Security.Cryptography;
 using System.Text;
 using TravelHelperBackend.Helpers;
 using System.Text.Json.Serialization;
+using System.ComponentModel.DataAnnotations;
 
 namespace TravelHelperBackend.Database.Models
 {
@@ -28,6 +29,10 @@ namespace TravelHelperBackend.Database.Models
         [JsonIgnore]
         public List<TripMember> TripRoles { get; set; }
         [JsonIgnore]
+        public List<PollVariants> VotesInPolls { get; set; }
+        [JsonIgnore]
         public FileModel Avatar { get; set; }
+        [JsonIgnore]
+        public List<Place> Favorites { get; set; }
     }
 }

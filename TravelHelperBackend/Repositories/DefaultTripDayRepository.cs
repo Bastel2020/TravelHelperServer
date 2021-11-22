@@ -39,7 +39,7 @@ namespace TravelHelperBackend.Repositories
                 return null;
 
             var editorRole = trip.MemberRoles.FirstOrDefault(mr => mr.UserId == editor.Id);
-            if (editorRole == null || editorRole.Role == Enums.TripRolesEnum.Viewer)
+            if (editorRole == null || editorRole.Role == Enums.TripRole.Viewer)
                 return null;
 
             tripDay.Actions.Add(new TripAction(data));
@@ -57,7 +57,7 @@ namespace TravelHelperBackend.Repositories
                 return null;
 
             var editorRole = trip.MemberRoles.FirstOrDefault(mr => mr.UserId == currentUser.Id);
-            if (editorRole == null || editorRole.Role == Enums.TripRolesEnum.Viewer)
+            if (editorRole == null || editorRole.Role == Enums.TripRole.Viewer)
                 return null;
 
             var tripDayWithSameDate = trip.TripDays.FirstOrDefault(td => td.Date == data.TimeToAdd);
@@ -90,7 +90,7 @@ namespace TravelHelperBackend.Repositories
                 return null;
 
             var editorRole = trip.MemberRoles.FirstOrDefault(mr => mr.UserId == editor.Id);
-            if (editorRole == null || editorRole.Role == Enums.TripRolesEnum.Viewer)
+            if (editorRole == null || editorRole.Role == Enums.TripRole.Viewer)
                 return null;
 
             _db.TripActions.Remove(tripAction);
@@ -115,7 +115,7 @@ namespace TravelHelperBackend.Repositories
                 return null;
 
             var editorRole = trip.MemberRoles.FirstOrDefault(mr => mr.UserId == editor.Id);
-            if (editorRole == null || editorRole.Role == Enums.TripRolesEnum.Viewer)
+            if (editorRole == null || editorRole.Role == Enums.TripRole.Viewer)
                 return null;
 
             _db.TripDays.Remove(tripDayToDelete);
@@ -144,7 +144,7 @@ namespace TravelHelperBackend.Repositories
                 return null;
 
             var editorRole = trip.MemberRoles.FirstOrDefault(mr => mr.UserId == editor.Id);
-            if (editorRole == null || editorRole.Role == Enums.TripRolesEnum.Viewer)
+            if (editorRole == null || editorRole.Role == Enums.TripRole.Viewer)
                 return null;
 
             if (tripAction.TimeOfAction != new TimeSpan(-1, 0, 0))
@@ -179,7 +179,7 @@ namespace TravelHelperBackend.Repositories
                 return null;
 
             var editorRole = trip.MemberRoles.FirstOrDefault(mr => mr.UserId == editor.Id);
-            if (editorRole == null || editorRole.Role == Enums.TripRolesEnum.Viewer)
+            if (editorRole == null || editorRole.Role == Enums.TripRole.Viewer)
                 return null;
 
             if (trip.TripDays.FirstOrDefault(td => td.Date == data.Date) != null)

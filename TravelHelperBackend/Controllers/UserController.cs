@@ -91,7 +91,7 @@ namespace TravelHelperBackend.Controllers
             if (response == null)
                 return BadRequest("Невозможно получить аватар. Возможно, вы ошиблись в Id.");
 
-            return Ok(response);
+            return File(response, "image/jpeg");
         }
     }
 }

@@ -141,5 +141,15 @@ namespace TravelHelperBackend.Controllers
                 return BadRequest("Ошибка редактирования события. Возможно, вы не можете редактировать поездку.");
             return Ok(Newtonsoft.Json.JsonConvert.SerializeObject(result, Newtonsoft.Json.Formatting.Indented));
         }
+
+        [Authorize]
+        [HttpPost("Vote")]
+        public async Task<IActionResult> VoteInPoll([FromForm] int tripId, int selectedVariant)
+        {
+            var result = await _tripRepository.VoteInPoll(tripId, selectedVariant, User.Identity.Name);
+            if (result == null)
+                return BadRequest("Ошибка при отправке голоса. Возможно, вы не имеете доступа к этому голосованию.");
+            return Ok(Newtonsoft.Json.JsonConvert.SerializeObject(result, Newtonsoft.Json.Formatting.Indented));
+        }
     }
 }

@@ -27,6 +27,7 @@ namespace TravelHelperBackend.Repositories
                 .Include(t => t.TripDays)
                 .ThenInclude(td => td.Actions)
                 .Include(t => t.TripDestination)
+                .Include(t => t.Polls)
                 .FirstOrDefaultAsync(t => t.Id == id);
         }
 
@@ -83,7 +84,7 @@ namespace TravelHelperBackend.Repositories
                 return null;
 
             var editorRole = trip.MemberRoles.FirstOrDefault(mr => mr.UserId == currentUser.Id);
-            if (editorRole == null || editorRole.Role == Enums.TripRolesEnum.Viewer)
+            if (editorRole == null || editorRole.Role == Enums.TripRole.Viewer)
                 return null;
 
             if (data.Destination != -1)
@@ -108,9 +109,11 @@ namespace TravelHelperBackend.Repositories
         public async Task<TripInfoDTO> GetTripInfo(int tripId, string email)
         {
             var trip = await GetTrip(tripId);
-            if (trip == null || trip.Members.FirstOrDefault(u => u.Email == email) == null)
+            var tripMember = trip.Members.FirstOrDefault(u => u.Email == email);
+            if (trip == null || tripMember == null)
                 return null;
-            return new TripInfoDTO(trip);
+            var role = trip.MemberRoles.FirstOrDefault(mr => mr.UserId == tripMember.Id).Role;
+            return new TripInfoDTO(trip, role);
         }
 
         public async Task<TripInfoDTO> GenerateInviteCode(int tripId, string email)
@@ -172,7 +175,7 @@ namespace TravelHelperBackend.Repositories
                 return false;
 
             var deleterRole = trip.MemberRoles.FirstOrDefault(mr => mr.UserId == currentUser.Id);
-            if (deleterRole == null || deleterRole.Role != Enums.TripRolesEnum.Owner)
+            if (deleterRole == null || deleterRole.Role != Enums.TripRole.Owner)
                 return false;
 
             _db.Trips.Remove(trip);
@@ -192,9 +195,28 @@ namespace TravelHelperBackend.Repositories
 
             tripToAdd.MemberRoles
                 .First(mr => mr.UserId == userToAdd.Id)
-                .Role = Enums.TripRolesEnum.Viewer;
+                .Role = Enums.TripRole.Viewer;
             await _db.SaveChangesAsync();
             return true;
+        }
+
+        public async Task<TripInfoDTO> VoteInPoll(int pollId, int selectedOption, string email)
+        {
+            var poll = await _db.Polls
+                .Include(p => p.Parent)
+                .Include(p => p.Variants)
+                .FirstOrDefaultAsync(p => p.Id == pollId);
+            if (poll == null)
+                return null;
+            var trip = await GetTrip(poll.Parent.Id);
+            var user = trip.Members.FirstOrDefault(m => m.Email == email);
+            if (user != null)
+                return null;
+            poll.Variants[selectedOption].Votes.Add(user);
+
+            await _db.SaveChangesAsync();
+
+            return await GetTripInfo(poll.Parent.Id, email);
         }
     }
 }

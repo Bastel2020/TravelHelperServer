@@ -43,6 +43,7 @@ namespace TravelHelperBackend
             services.AddScoped<IUserRepository, DefaultUserRepository>();
             services.AddScoped<ITripRepository, DefaultTripRepository>();
             services.AddScoped<ITripDayRepository, DefaultTripDayRepository>();
+            services.AddScoped<IPlacesRepository, DefaultPlacesRepository>();
 
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(op =>

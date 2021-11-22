@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using TravelHelperBackend.Database.Models;
+using TravelHelperBackend.Enums;
 
 namespace TravelHelperBackend.DTOs
 {
@@ -18,14 +19,19 @@ namespace TravelHelperBackend.DTOs
         public DateTime TripEnd{ get; set; }
         public object Users { get; set; }
         public object TripDays { get; set; }
-        public TripInfoDTO(Trip tripToParse)
+        public object Polls { get; set; }
+        public TripRole RequiedRoleForInviteCode { get; set; }
+        public TripInfoDTO(Trip tripToParse, TripRole role)
         {
             Id = tripToParse.Id;
             Name = tripToParse.Name;
             Description = tripToParse.Description;
             DestinationId = tripToParse.TripDestination.Id;
             DestinationName = tripToParse.TripDestination.Name;
-            InviteCode = tripToParse.InviteCode;
+            if (role != TripRole.Viewer)
+                RequiedRoleForInviteCode = tripToParse.RequeidRoleToAccessInviteCode;
+            if(role <= tripToParse.RequeidRoleToAccessInviteCode)
+                InviteCode = tripToParse.InviteCode;
             try
             {
                 TripStart = tripToParse.GetStartDate();
@@ -44,6 +50,7 @@ namespace TravelHelperBackend.DTOs
                 Date = td.Date,
                 Actions = td.Actions
             });
+            Polls = tripToParse.Polls;
         }
 
         public TripInfoDTO()
