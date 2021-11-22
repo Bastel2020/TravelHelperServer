@@ -24,7 +24,7 @@ namespace TravelHelperBackend.Controllers
 
         [Authorize]
         [HttpPost("Create")]
-        public async Task<IActionResult> CreateTrip([FromForm] CreateTripDTO inputData)
+        public async Task<IActionResult> CreateTrip([FromBody] CreateTripDTO inputData)
         {
             var result = await _tripRepository.CreateTrip(inputData, User.Identity.Name);
             if (result == null)
@@ -34,7 +34,7 @@ namespace TravelHelperBackend.Controllers
 
         [Authorize]
         [HttpGet("GenerateInvite")]
-        public async Task<IActionResult> CreateTrip([FromForm] int TripId)
+        public async Task<IActionResult> CreateTrip([FromBody] int TripId)
         {
             var result = await _tripRepository.GenerateInviteCode(TripId, User.Identity.Name);
             if (result == null)
@@ -44,7 +44,7 @@ namespace TravelHelperBackend.Controllers
 
         [Authorize]
         [HttpPost("Join")]
-        public async Task<IActionResult> JoinByInvite([FromForm] string inviteCode)
+        public async Task<IActionResult> JoinByInvite([FromBody] string inviteCode)
         {
             var result = await _tripRepository.JoinByInviteCode(inviteCode, User.Identity.Name);
             if (result == null)
@@ -54,7 +54,7 @@ namespace TravelHelperBackend.Controllers
 
         [Authorize]
         [HttpPost("EditTrip")]
-        public async Task<IActionResult> EditTrip([FromForm] EditTripInfoDTO dataToEdit)
+        public async Task<IActionResult> EditTrip([FromBody] EditTripInfoDTO dataToEdit)
         {
             var result = await _tripRepository.EditTripInfo(dataToEdit, User.Identity.Name);
             if (result == null)
@@ -84,7 +84,7 @@ namespace TravelHelperBackend.Controllers
 
         [Authorize]
         [HttpPost("AddDay")]
-        public async Task<IActionResult> AddTripDay([FromForm] AddTripDayDTO data)
+        public async Task<IActionResult> AddTripDay([FromBody] AddTripDayDTO data)
         {
             var result = await _tripDayRepository.AddTripDay(data, User.Identity.Name);
             if (result == null)
@@ -94,7 +94,7 @@ namespace TravelHelperBackend.Controllers
 
         [Authorize]
         [HttpDelete("DeleteDay")]
-        public async Task<IActionResult> DeleteTripDay([FromForm] long id)
+        public async Task<IActionResult> DeleteTripDay([FromBody] long id)
         {
             var result = await _tripDayRepository.DeleteTripDay(id, User.Identity.Name);
             if (result == null)
@@ -104,7 +104,7 @@ namespace TravelHelperBackend.Controllers
 
         [Authorize]
         [HttpPost("EditTripDay")]
-        public async Task<IActionResult> EditAction([FromForm] EditTripDayDTO data)
+        public async Task<IActionResult> EditAction([FromBody] EditTripDayDTO data)
         {
             var result = await _tripDayRepository.EditTripDay(data, User.Identity.Name);
             if (result == null)
@@ -114,7 +114,7 @@ namespace TravelHelperBackend.Controllers
 
         [Authorize]
         [HttpPost("AddAction")]
-        public async Task<IActionResult> AddAction([FromForm] AddActionDTO data)
+        public async Task<IActionResult> AddAction([FromBody] AddActionDTO data)
         {
             var result = await _tripDayRepository.AddAction(data, User.Identity.Name);
             if (result == null)
@@ -124,7 +124,7 @@ namespace TravelHelperBackend.Controllers
 
         [Authorize]
         [HttpDelete("DeleteAction")]
-        public async Task<IActionResult> DeleteAction([FromForm] long id)
+        public async Task<IActionResult> DeleteAction([FromBody] long id)
         {
             var result = await _tripDayRepository.DeleteAction(id, User.Identity.Name);
             if (result == null)
@@ -134,7 +134,7 @@ namespace TravelHelperBackend.Controllers
 
         [Authorize]
         [HttpPost("EditAction")]
-        public async Task<IActionResult> EditAction([FromForm] EditActionDTO data)
+        public async Task<IActionResult> EditAction([FromBody] EditActionDTO data)
         {
             var result = await _tripDayRepository.EditAction(data, User.Identity.Name);
             if (result == null)

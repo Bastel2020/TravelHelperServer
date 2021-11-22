@@ -16,6 +16,7 @@ namespace TravelHelperBackend.Database
         public DbSet<TripDay> TripDays { get; set; }
         public DbSet<TripAction> TripActions { get; set; }
         public DbSet<City> Cities { get; set; }
+        public DbSet<FileModel> Files { get; set; }
         public DefaultDbContext(IOptions<DatabaseOptions> dbOptions)
         {
             _dbOptions = dbOptions.Value;
@@ -62,6 +63,10 @@ namespace TravelHelperBackend.Database
             modelBuilder.Entity<City>()
                 .HasMany(c => c.PlannedTrips)
                 .WithOne(t => t.TripDestination);
+
+            //modelBuilder.Entity<User>()
+            //    .HasOne(u => u.Avatar)
+            //    .WithOne()
         }
     }
 }
