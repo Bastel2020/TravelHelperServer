@@ -12,6 +12,7 @@ namespace TravelHelperBackend.Database.Models
         public string Description { get; set; }
         public List<Trip> PlannedTrips { get; set; }
         public List<FileModel> Photos { get; set; }
-        public List<PlaceCategory> Places { get; set; }
+        public FileModel MainPhoto { get; set; }
+        public List<Place> Places { get; set; }
     }
 }

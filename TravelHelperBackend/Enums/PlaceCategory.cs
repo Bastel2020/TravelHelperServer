@@ -3,9 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace TravelHelperBackend.Interfaces
+namespace TravelHelperBackend.Enums
 {
-    public interface IPlacesRepository
+    public enum PlaceCategory
     {
+        test,
+        test2,
+        test3
     }
 }

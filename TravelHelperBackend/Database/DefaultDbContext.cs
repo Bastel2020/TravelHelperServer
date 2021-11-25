@@ -16,6 +16,7 @@ namespace TravelHelperBackend.Database
         public DbSet<TripDay> TripDays { get; set; }
         public DbSet<TripAction> TripActions { get; set; }
         public DbSet<City> Cities { get; set; }
+        public DbSet<Place> Places { get; set; }
         public DbSet<Poll> Polls { get; set; }
         public DbSet<FileModel> Files { get; set; }
         public DefaultDbContext(IOptions<DatabaseOptions> dbOptions)
@@ -75,6 +76,10 @@ namespace TravelHelperBackend.Database
             modelBuilder.Entity<PollVariants>()
                 .HasMany(pv => pv.Votes)
                 .WithMany(u => u.VotesInPolls);
+
+            modelBuilder.Entity<City>()
+                .HasMany(c => c.Places)
+                .WithOne(p => p.City);
         }
     }
 }

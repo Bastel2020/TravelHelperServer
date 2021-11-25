@@ -75,7 +75,10 @@ namespace TravelHelperBackend.Repositories
                 await _db.SaveChangesAsync();
                 return true;
             }
-            catch { return false; }
+            catch(Exception e)
+            {
+                return false;
+            }
         }
     }
 }

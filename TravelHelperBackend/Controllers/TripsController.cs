@@ -33,10 +33,10 @@ namespace TravelHelperBackend.Controllers
         }
 
         [Authorize]
-        [HttpGet("GenerateInvite")]
-        public async Task<IActionResult> CreateTrip([FromBody] int TripId)
+        [HttpGet("{id}/GenerateInvite")]
+        public async Task<IActionResult> CreateTrip(int id)
         {
-            var result = await _tripRepository.GenerateInviteCode(TripId, User.Identity.Name);
+            var result = await _tripRepository.GenerateInviteCode(id, User.Identity.Name);
             if (result == null)
                 return BadRequest("Ошибка при генерации кода доступа. Возможно, вы не имеете доступа к этой поездке.");
             else return Ok(Newtonsoft.Json.JsonConvert.SerializeObject(result, Newtonsoft.Json.Formatting.Indented));
