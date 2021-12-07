@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -9,7 +10,7 @@ namespace TravelHelperBackend.DTOs
     public class PlaceInfoDTO
     {
         public int Id { get; set; }
-        public string Name { get; set; }
+        public string Title { get; set; }
         public string Description { get; set; }
         public string MainPhotoUrl { get; set; }
         public List<string> PhotosUrl { get; set; }
@@ -24,7 +25,7 @@ namespace TravelHelperBackend.DTOs
         public PlaceInfoDTO(Place placeToParse)
         {
             Id = placeToParse.Id;
-            Name = placeToParse.Name;
+            Title = placeToParse.Name;
             Description = placeToParse.Description;
             if (placeToParse.MainPhoto != null && placeToParse.MainPhoto.Id != 0)
                 MainPhotoUrl = $"/files/photos/{placeToParse.MainPhoto.Id}";

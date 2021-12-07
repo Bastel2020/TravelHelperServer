@@ -7,8 +7,10 @@ namespace TravelHelperBackend.Enums
 {
     public enum PlaceCategory
     {
-        test,
-        test2,
-        test3
+        Достопримечательности,
+        Парки,
+        ТЦ,
+        Развлечения,
+        Пляжи
     }
 }

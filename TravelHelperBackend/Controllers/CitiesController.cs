@@ -17,7 +17,7 @@ namespace TravelHelperBackend.Controllers
             _citiesRepository = repository;
         }
 
-        [HttpGet("{request}")]
+        [HttpGet("{idOrRequest}")]
         public async Task<IActionResult> GetCity(string request)
         {
             if(int.TryParse(request, out int cityId))
@@ -42,6 +42,24 @@ namespace TravelHelperBackend.Controllers
             return Ok(responseByString);
         }
 
+        [HttpGet("{id}/placesShort")]
+        public async Task<IActionResult> GetPlacesShortInfo(int id)
+        {
+            var responseByString = await _citiesRepository.GetCityPlacesShortInfo(id);
+            if (responseByString == null)
+                return NotFound("Город с таким Id не найден!");
+            return Ok(responseByString);
+        }
+
+        [HttpGet("{cityId}/placesByCategory/{categoryId}")]
+        public async Task<IActionResult> GetPlacesByCategoryShortInfo(int cityId, int categoryId)
+        {
+            var response = await _citiesRepository.GetPlacesByCategoryShortInfo(cityId, categoryId);
+            if (response == null)
+                return NotFound("Не найден город и/или категория с таким Id!");
+            return Ok(response);
+        }
+
         [HttpGet("searchPlaces")]
         public async Task<IActionResult> GetPlaces([FromBody] string request)
         {
@@ -49,6 +67,15 @@ namespace TravelHelperBackend.Controllers
             if (responseByString == null)
                 return NotFound("Мест не найдено.");
             return Ok(responseByString);
+        }
+
+        [HttpGet("places/{placeId}")]
+        public async Task<IActionResult> GetPlace(int placeId)
+        {
+            var response = await _citiesRepository.GetPlaceById(placeId);
+            if (response == null)
+                return NotFound("Место с таким Id не найдено.");
+            return Ok(response);
         }
     }
 }
