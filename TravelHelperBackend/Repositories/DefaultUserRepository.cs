@@ -118,5 +118,66 @@ namespace TravelHelperBackend.Repositories
                 return null;
             return await File.ReadAllBytesAsync(user.Avatar.Path);
         }
+
+        public async Task<bool> AddOrRemoveFromFavorites(string email, int placeId)
+        {
+            var user = await _db.Users
+                .Include(u => u.Favorites)
+                .FirstOrDefaultAsync(u => u.Email == email);
+            if (user == null)
+                return false;
+
+            var place = user.Favorites.FirstOrDefault(f => f.Id == placeId);
+
+            if (place != null)
+            {
+                user.Favorites.Remove(place);
+                await _db.SaveChangesAsync();
+                return true;
+            }
+            else
+            {
+                place = await _db.Places.FirstOrDefaultAsync(p => p.Id == placeId);
+
+                if (place == null)
+                    return false;
+
+                user.Favorites.Add(place);
+                await _db.SaveChangesAsync();
+
+                return true;
+            }
+        }
+
+        public async Task<bool> IsInFavorites(string email, int placeId)
+        {
+            var user = await _db.Users
+                .Include(u => u.Favorites)
+                .FirstOrDefaultAsync(u => u.Email == email);
+
+            if (user == null)
+                return false;
+
+            return (user.Favorites.FirstOrDefault(p => p.Id == placeId) != null);
+        }
+
+        public async Task<PlaceInfoDTO[]> GetAllFavorites(string email)
+        {
+            var user = await _db.Users
+                .Include(u => u.Favorites)
+                .ThenInclude(p => p.MainPhoto)
+                .Include(u => u.Favorites)
+                .ThenInclude(p => p.Photos)
+                .Include(u => u.Favorites)
+                .ThenInclude(p => p.City)
+                .FirstOrDefaultAsync(u => u.Email == email);
+
+            if (user == null)
+                return null;
+
+            return user.Favorites
+                .Select(p => new PlaceInfoDTO(p))
+                .ToArray();
+        }
     }
 }

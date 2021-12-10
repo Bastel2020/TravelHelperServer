@@ -10,8 +10,12 @@ namespace TravelHelperBackend.DTOs
     public class PlaceInfoDTO
     {
         public int Id { get; set; }
-        public string Title { get; set; }
+        public string Name { get; set; }
+        public int CityId { get; set; }
+        public string CityName { get; set; }
         public string Description { get; set; }
+        public string PlaceSite { get; set; }
+        public string EnterCost { get; set; }
         public string MainPhotoUrl { get; set; }
         public List<string> PhotosUrl { get; set; }
         public double Latitude { get; set; }
@@ -25,8 +29,14 @@ namespace TravelHelperBackend.DTOs
         public PlaceInfoDTO(Place placeToParse)
         {
             Id = placeToParse.Id;
-            Title = placeToParse.Name;
+            Name = placeToParse.Name;
             Description = placeToParse.Description;
+
+            CityId = placeToParse.City.Id;
+            CityName = placeToParse.City.Name;
+
+            PlaceSite = placeToParse.PlaceSite;
+            EnterCost = placeToParse.EnterCost;
             if (placeToParse.MainPhoto != null && placeToParse.MainPhoto.Id != 0)
                 MainPhotoUrl = $"/files/photos/{placeToParse.MainPhoto.Id}";
             if (placeToParse.Photos != null)

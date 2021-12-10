@@ -83,7 +83,7 @@ namespace TravelHelperBackend.Controllers
         }
 
         [HttpGet("GetAvatar")]
-        public async Task<IActionResult> GetAvatar([FromBody] int userId)
+        public async Task<IActionResult> GetAvatar([FromQuery] int userId)
         {
 
             var response = await _userRepository.GetAvatar(userId);
@@ -92,6 +92,36 @@ namespace TravelHelperBackend.Controllers
                 return BadRequest("Невозможно получить аватар. Возможно, вы ошиблись в Id.");
 
             return File(response, "image/jpeg");
+        }
+
+        [Authorize]
+        [HttpGet("Favorites")]
+        public async Task<IActionResult> GetFavorites()
+        {
+            var response = await _userRepository.GetAllFavorites(User.Identity.Name);
+
+            return Ok(response);
+        }
+
+        [Authorize]
+        [HttpGet("Favorites/AddOrRemove")]
+        public async Task<IActionResult> AddOrRemoveFavorites([FromQuery] int placeId)
+        {
+            var response = await _userRepository.AddOrRemoveFromFavorites(User.Identity.Name, placeId);
+
+            if (response)
+                return Ok(response);
+            else
+                return BadRequest("Места с таким Id не найдено!");
+        }
+
+        [Authorize]
+        [HttpGet("Favorites/Contains")]
+        public async Task<IActionResult> ContainsInFavorites([FromQuery] int placeId)
+        {
+            var response = await _userRepository.IsInFavorites(User.Identity.Name, placeId);
+
+            return Ok(response);
         }
     }
 }

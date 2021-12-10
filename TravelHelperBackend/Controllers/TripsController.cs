@@ -144,7 +144,7 @@ namespace TravelHelperBackend.Controllers
 
         [Authorize]
         [HttpPost("Vote")]
-        public async Task<IActionResult> VoteInPoll([FromForm] int tripId, int selectedVariant)
+        public async Task<IActionResult> VoteInPoll([FromBody] int tripId, int selectedVariant)
         {
             var result = await _tripRepository.VoteInPoll(tripId, selectedVariant, User.Identity.Name);
             if (result == null)

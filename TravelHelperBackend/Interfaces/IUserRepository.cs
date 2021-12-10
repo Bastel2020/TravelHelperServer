@@ -16,5 +16,8 @@ namespace TravelHelperBackend.Interfaces
         public Task<bool> UploadAvatar(IFormFile file, string email);
         public Task<bool> DeleteAvatar(string email);
         public Task<byte[]> GetAvatar(int userId);
+        public Task<bool> AddOrRemoveFromFavorites(string email, int placeId);
+        public Task<bool> IsInFavorites(string email, int placeId);
+        public Task<PlaceInfoDTO[]> GetAllFavorites(string email);
     }
 }

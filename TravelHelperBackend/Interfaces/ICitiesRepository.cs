@@ -14,6 +14,6 @@ namespace TravelHelperBackend.Interfaces
         public Task<List<PlaceCategoryShortDTO>> GetCityPlacesShortInfo(int cityId);
         public Task<List<PlaceShortInfoDTO>> GetPlacesByCategoryShortInfo(int cityId, int category);
         public Task<PlaceInfoDTO> GetPlaceById(int placeId);
-        public Task<List<PlaceInfoDTO>> SearchPlaces(string searchRequest);
+        public Task<List<PlaceInfoDTO>> SearchPlaces(SearchRequestDTO searchRequest);
     }
 }

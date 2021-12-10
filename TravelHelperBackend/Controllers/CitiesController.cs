@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using TravelHelperBackend.DTOs;
 using TravelHelperBackend.Interfaces;
 
 namespace TravelHelperBackend.Controllers
@@ -18,16 +19,16 @@ namespace TravelHelperBackend.Controllers
         }
 
         [HttpGet("{idOrRequest}")]
-        public async Task<IActionResult> GetCity(string request)
+        public async Task<IActionResult> GetCity(string idOrRequest)
         {
-            if(int.TryParse(request, out int cityId))
+            if(int.TryParse(idOrRequest, out int cityId))
             {
                 var responseById = await _citiesRepository.GetCityById(cityId);
                 if (responseById == null)
                     return NotFound("Город с таким Id не найден!");
                 return Ok(responseById);
             }
-            var responseByString = await _citiesRepository.GetCityByName(request);
+            var responseByString = await _citiesRepository.GetCityByName(idOrRequest);
             if (responseByString == null)
                 return NotFound("Город с таким названием не найден!");
             return Ok(responseByString);
@@ -60,8 +61,8 @@ namespace TravelHelperBackend.Controllers
             return Ok(response);
         }
 
-        [HttpGet("searchPlaces")]
-        public async Task<IActionResult> GetPlaces([FromBody] string request)
+        [HttpPost("searchPlaces")]
+        public async Task<IActionResult> GetPlaces([FromBody] SearchRequestDTO request)
         {
             var responseByString = await _citiesRepository.SearchPlaces(request);
             if (responseByString == null)
