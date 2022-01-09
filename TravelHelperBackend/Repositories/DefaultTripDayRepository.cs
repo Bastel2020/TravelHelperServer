@@ -21,7 +21,7 @@ namespace TravelHelperBackend.Repositories
         }
         public async Task<TripInfoDTO> AddAction(AddActionDTO data, string email)
         {
-            if (data.TripDayId == 0 || data.Name == null || data.TimeOfAction == new TimeSpan(-1, 0, 0))
+            if (data.TripDayId == 0 || data.Name == null || data.TimeOfAction == null)
                 return null;
 
             var tripDay = await _db.TripDays
@@ -29,7 +29,7 @@ namespace TravelHelperBackend.Repositories
                     .Include(td => td.Actions)
                     .FirstOrDefaultAsync(td => td.Id == data.TripDayId);
 
-            if (tripDay == null)
+            if (tripDay == null || tripDay.Parent == null)
                 return null;
 
             var trip = await _trRep.GetTrip(tripDay.Parent.Id);
@@ -42,10 +42,39 @@ namespace TravelHelperBackend.Repositories
             if (editorRole == null || editorRole.Role == Enums.TripRole.Viewer)
                 return null;
 
-            tripDay.Actions.Add(new TripAction(data));
+            
+            //var id = _db.TripActions
+            //    .Select(ta => ta.Id)
+            //    .Max() + 1;
+            //tripDay.Actions.Add(new TripAction(data, id));
+            //var newAction = new TripAction(data, tripDay);
+            //await _db.TripActions.AddAsync(newAction);
+            await _db.TripActions.AddAsync(new TripAction() {/* Id = id, */Description = data.Description, Location = data.Location, Name = data.Name, TimeOfAction = TimeSpan.Parse(data.TimeOfAction), Parent = tripDay });
             await _db.SaveChangesAsync();
 
             return await _trRep.GetTripInfo(trip.Id, email);
+        }
+
+        public async Task<ActionInfoDTO> GetActionInfo(long actionId, string email)
+        {
+            var user = await _db.Users.FirstOrDefaultAsync(u => u.Email == email);
+
+            if (user == null)
+                return null;
+
+            var tripAction = await _db.TripActions
+                .Include(ta => ta.Parent)
+                .ThenInclude(td => td.Parent)
+                .ThenInclude(t => t.Members)              
+                .FirstOrDefaultAsync(ta => ta.Id == actionId);
+
+            if (tripAction == null)
+                return null;
+
+            if (tripAction.Parent.Parent.Members.Contains(user))
+                return new ActionInfoDTO(tripAction);
+            else
+                return null;
         }
 
         public async Task<TripInfoDTO> AddTripDay(AddTripDayDTO data, string email)
@@ -147,8 +176,8 @@ namespace TravelHelperBackend.Repositories
             if (editorRole == null || editorRole.Role == Enums.TripRole.Viewer)
                 return null;
 
-            if (tripAction.TimeOfAction != new TimeSpan(-1, 0, 0))
-                tripAction.TimeOfAction = data.TimeOfAction;
+            if (data.TimeOfAction != null && data.TimeOfAction != "")
+                tripAction.TimeOfAction = TimeSpan.Parse(data.TimeOfAction);
             if (data.Name != null)
                 tripAction.Name = data.Name;
             if (data.Description != null)
@@ -189,6 +218,59 @@ namespace TravelHelperBackend.Repositories
             await _db.SaveChangesAsync();
 
             return await _trRep.GetTripInfo(trip.Id, email);
+        }
+
+        public async Task<TripInfoDTO> CreatePoll(CreatePollDTO data, string email)
+        {
+            var currentUser = _db.Users.FirstOrDefault(u => u.Email == email);
+            if (currentUser == null)
+                return null;
+
+            var tripAction = await _db.TripActions
+                .Include(ta => ta.Polls)
+                .Include(ta => ta.Parent)
+                .ThenInclude(td => td.Parent)
+                .ThenInclude(t => t.MemberRoles)
+                .FirstOrDefaultAsync(ta => ta.Id == data.ActionId);
+            if (tripAction == null)
+                return null;
+
+            var editorRole = tripAction.Parent.Parent.MemberRoles.FirstOrDefault(mr => mr.UserId == currentUser.Id);
+            if (editorRole == null || editorRole.Role == Enums.TripRole.Viewer)
+                return null;
+
+            tripAction.Polls.Add(new Poll(data));
+
+            await _db.SaveChangesAsync();
+
+            return await _trRep.GetTripInfo(tripAction.Parent.Parent.Id, email);
+        }
+
+        public async Task<TripInfoDTO> VoteInPoll(int pollId, int selectedOption, string email)
+        {
+            var currentUser = _db.Users.FirstOrDefault(u => u.Email == email);
+            if (currentUser == null)
+                return null;
+
+            var poll = await _db.Polls
+                .Include(p => p.Parent)
+                .ThenInclude(ta => ta.Parent)
+                .ThenInclude(td => td.Parent)
+                .ThenInclude(t => t.MemberRoles)
+                .Include(p => p.Variants)
+                .FirstOrDefaultAsync(p => p.Id == pollId);
+            if (poll == null)
+                return null;
+
+            var trip = poll.Parent.Parent.Parent;
+            var user = trip.MemberRoles.FirstOrDefault(mr => mr.UserId == currentUser.Id);
+            if (user != null)
+                return null;
+            poll.Variants[selectedOption].Votes.Add(currentUser);
+
+            await _db.SaveChangesAsync();
+
+            return await _trRep.GetTripInfo(poll.Parent.Parent.Parent.Id, email);
         }
     }
 }

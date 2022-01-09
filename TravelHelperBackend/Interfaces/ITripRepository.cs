@@ -13,9 +13,9 @@ namespace TravelHelperBackend.Interfaces
         public Task<TripInfoDTO> GetTripInfo(int tripId, string email);
         public Task<bool> DeleteTrip(int tripId, string email);
         public Task<TripInfoDTO> GenerateInviteCode(int tripId, string email);
+        public Task<TripInfoDTO> ChangeTripRole(ChangeRoleDTO data, string email);
         public Task<TripInfoDTO> JoinByInviteCode(string invite, string email);
         public Task<bool> AddUserToTrip(string emailToInvite, int tripId, string email);
         public Task<bool> AddUserToTripWithoutСheck(Trip tripToAdd, string emailToAdd);
-        public Task<TripInfoDTO> VoteInPoll(int pollId, int selectedOption, string email);
     }
 }

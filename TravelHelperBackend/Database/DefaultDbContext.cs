@@ -61,13 +61,21 @@ namespace TravelHelperBackend.Database
                 .HasMany(td => td.Actions)
                 .WithOne(ta => ta.Parent);
 
+            modelBuilder.Entity<TripAction>()
+                .HasOne(ta => ta.Parent)
+                .WithMany(td => td.Actions);
+
             modelBuilder.Entity<City>()
                 .HasMany(c => c.PlannedTrips)
                 .WithOne(t => t.TripDestination);
 
-            modelBuilder.Entity<Trip>()
-                .HasMany(t => t.Polls)
+            modelBuilder.Entity<TripAction>()
+                .HasMany(ta => ta.Polls)
                 .WithOne(p => p.Parent);
+
+            //modelBuilder.Entity<Poll>()
+            //    .HasOne(p => p.Parent)
+            //    .WithOne(ta => ta.Poll);
 
             modelBuilder.Entity<Poll>()
                 .HasMany(p => p.Variants)

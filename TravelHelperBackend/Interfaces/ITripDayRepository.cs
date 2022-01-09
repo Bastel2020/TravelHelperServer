@@ -11,8 +11,11 @@ namespace TravelHelperBackend.Interfaces
         public Task<TripInfoDTO> AddTripDay(AddTripDayDTO data, string email);
         public Task<TripInfoDTO> DeleteTripDay(long tripDayId, string email);
         public Task<TripInfoDTO> EditTripDay(EditTripDayDTO data, string email);
+        public Task<ActionInfoDTO> GetActionInfo(long actionId, string email);
         public Task<TripInfoDTO> AddAction(AddActionDTO data, string email);
         public Task<TripInfoDTO> DeleteAction(long actionId, string email);
         public Task<TripInfoDTO> EditAction(EditActionDTO data, string email);
+        public Task<TripInfoDTO> CreatePoll(CreatePollDTO data, string email);
+        public Task<TripInfoDTO> VoteInPoll(int pollId, int selectedOption, string email);
     }
 }

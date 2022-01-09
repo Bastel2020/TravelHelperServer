@@ -26,9 +26,26 @@ namespace TravelHelperBackend.Repositories
                 .Include(t => t.MemberRoles)
                 .Include(t => t.TripDays)
                 .ThenInclude(td => td.Actions)
+                .ThenInclude(t => t.Polls)
+                .ThenInclude(p => p.Variants)
+                .ThenInclude(v => v.Votes)
                 .Include(t => t.TripDestination)
-                .Include(t => t.Polls)
                 .FirstOrDefaultAsync(t => t.Id == id);
+        }
+
+        public async Task<Trip> GetFirstUserTrip(User user)
+        {
+            var result = await _db.Trips
+                .Include(t => t.Members)
+                .Include(t => t.MemberRoles)
+                .Include(t => t.TripDays)
+                .ThenInclude(td => td.Actions)
+                .ThenInclude(t => t.Polls)
+                .ThenInclude(p => p.Variants)
+                .ThenInclude(v => v.Votes)
+                .Include(t => t.TripDestination)
+                .FirstOrDefaultAsync(t => t.Members.Contains(user));
+            return result;
         }
 
         public async Task<TripInfoDTO> CreateTrip(CreateTripDTO data, string email)
@@ -108,18 +125,49 @@ namespace TravelHelperBackend.Repositories
 
         public async Task<TripInfoDTO> GetTripInfo(int tripId, string email)
         {
-            var trip = await GetTrip(tripId);
+            Trip trip;
+            if (tripId == 0)
+            {
+                var user = await _db.Users
+                    .Include(u => u.UserTrips)
+                    .FirstOrDefaultAsync(u => u.Email == email);
+                if (user == null)
+                    return null;
+
+                if (user.UserTrips == null || user.UserTrips.Count == 0)
+                {
+                    return new TripInfoDTO();
+                }
+
+                trip = await GetFirstUserTrip(user);
+                if (trip == null)
+                    return null;
+            }
+            else
+            {
+                trip = await GetTrip(tripId);
+            }
+            if (trip == null)
+                return null;
             var tripMember = trip.Members.FirstOrDefault(u => u.Email == email);
-            if (trip == null || tripMember == null)
+            if (tripMember == null)
                 return null;
             var role = trip.MemberRoles.FirstOrDefault(mr => mr.UserId == tripMember.Id).Role;
-            return new TripInfoDTO(trip, role);
+                return new TripInfoDTO(trip, role);
         }
 
         public async Task<TripInfoDTO> GenerateInviteCode(int tripId, string email)
         {
+            var user = await _db.Users.FirstOrDefaultAsync(u => u.Email == email);
+            if (user == null)
+                return null;
+
             var trip = await GetTrip(tripId);
-            if (trip == null || trip.Members.FirstOrDefault(u => u.Email == email) == null)
+            if (trip == null)
+                return null;
+
+            var tripRole = trip.MemberRoles.FirstOrDefault(mr => mr.UserId == user.Id);
+            if (tripRole == null || tripRole.Role == Enums.TripRole.Viewer)
                 return null;
 
             var rnd = new Random();
@@ -134,6 +182,38 @@ namespace TravelHelperBackend.Repositories
             await _db.SaveChangesAsync();
 
             return await GetTripInfo(tripId, email);
+        }
+
+        public async Task<TripInfoDTO> ChangeTripRole(ChangeRoleDTO data, string email)
+        {
+            if (data.NewRoleId == 0)
+                return null;
+
+            var user = await _db.Users.FirstOrDefaultAsync(u => u.Email == email);
+            if (user == null)
+                return null;
+
+            var trip = await GetTrip(data.TripId);
+            if (trip == null)
+                return null;
+
+            var editorTripRole = trip.MemberRoles.FirstOrDefault(mr => mr.UserId == user.Id);
+            if (editorTripRole == null || editorTripRole.Role == Enums.TripRole.Viewer)
+                return null;
+
+            var userToChangeRole = trip.MemberRoles.FirstOrDefault(mr => mr.UserId == data.UserToChangeId);
+
+            if (userToChangeRole.Role == Enums.TripRole.Owner || (userToChangeRole.Role == Enums.TripRole.Editor && editorTripRole.Role == Enums.TripRole.Editor))
+                return null;
+
+            if (data.NewRoleId == 1)
+                userToChangeRole.Role = Enums.TripRole.Editor;
+            else if (data.NewRoleId == 2)
+                userToChangeRole.Role = Enums.TripRole.Viewer;
+
+            await _db.SaveChangesAsync();
+
+            return await GetTripInfo(data.TripId, email);
         }
 
         public async Task<TripInfoDTO> JoinByInviteCode(string invite, string email)
@@ -198,25 +278,6 @@ namespace TravelHelperBackend.Repositories
                 .Role = Enums.TripRole.Viewer;
             await _db.SaveChangesAsync();
             return true;
-        }
-
-        public async Task<TripInfoDTO> VoteInPoll(int pollId, int selectedOption, string email)
-        {
-            var poll = await _db.Polls
-                .Include(p => p.Parent)
-                .Include(p => p.Variants)
-                .FirstOrDefaultAsync(p => p.Id == pollId);
-            if (poll == null)
-                return null;
-            var trip = await GetTrip(poll.Parent.Id);
-            var user = trip.Members.FirstOrDefault(m => m.Email == email);
-            if (user != null)
-                return null;
-            poll.Variants[selectedOption].Votes.Add(user);
-
-            await _db.SaveChangesAsync();
-
-            return await GetTripInfo(poll.Parent.Id, email);
         }
     }
 }

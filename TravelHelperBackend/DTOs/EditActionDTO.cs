@@ -16,10 +16,10 @@ namespace TravelHelperBackend.DTOs
         public string Location { get; set; }
         public object[] Files { get; set; }
         [Required]
-        public TimeSpan TimeOfAction { get; set; }
+        public string TimeOfAction { get; set; }
         public EditActionDTO()
         {
-            TimeOfAction = new TimeSpan(-1, 0, 0);
+            //TimeOfAction = new TimeSpan(-1, 0, 0);
         }
     }
 }

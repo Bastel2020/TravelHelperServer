@@ -22,11 +22,11 @@ namespace TravelHelperBackend.DTOs
             Name = cityToParse.Name;
             Description = cityToParse.Description;
             if (cityToParse.MainPhoto != null && cityToParse.MainPhoto.Id != 0)
-                MainPhotoUrl = $"http://188.186.26.85/TravelHelperBackend/api/files/photos/{cityToParse.MainPhoto.Id}";
+                MainPhotoUrl = $"http://188.186.7.171/TravelHelperBackend/api/files/photos/{cityToParse.MainPhoto.Id}";
             if (cityToParse.Photos != null)
                 PhotosUrls = cityToParse.Photos
                     .Where(p => p.Id != 0)
-                    .Select(p => $"http://188.186.26.85/TravelHelperBackend/api/files/photos/{p.Id}").ToList();
+                    .Select(p => $"http://188.186.7.171/TravelHelperBackend/api/files/photos/{p.Id}").ToList();
         }
     }
 }

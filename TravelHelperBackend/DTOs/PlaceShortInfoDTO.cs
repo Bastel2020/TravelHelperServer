@@ -24,7 +24,7 @@ namespace TravelHelperBackend.DTOs
             TextLocation = placeToParse.TextLocation;
 
             if (placeToParse.MainPhoto != null && placeToParse.MainPhoto.Id != 0)
-                MainPhotoUrl = $"/files/photos/{placeToParse.MainPhoto.Id}";
+                MainPhotoUrl = $"http://188.186.7.171/travelhelperbackend/api/files/photos/{placeToParse.MainPhoto.Id}";
         }
     }
 }

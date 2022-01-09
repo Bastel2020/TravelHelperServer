@@ -12,7 +12,6 @@ namespace TravelHelperBackend.Database.Models
         public bool OwnerLeaves { get; set; }
         public List<User> Members { get; set; }
         public List<TripMember> MemberRoles { get; set; }
-        public List<Poll> Polls { get; set; }
         public City TripDestination { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }

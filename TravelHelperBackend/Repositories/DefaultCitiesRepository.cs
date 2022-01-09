@@ -44,6 +44,9 @@ namespace TravelHelperBackend.Repositories
         {
             var city = await _db.Cities
                 .Include(c => c.Places)
+                .ThenInclude(p => p.MainPhoto)
+                .Include(c => c.Places)
+                .ThenInclude(p => p.Photos)
                 .FirstOrDefaultAsync(c => c.Id == cityId);
             if (city == null)
                 return null;

@@ -67,6 +67,12 @@ namespace TravelHelperBackend.Controllers
         public async Task<IActionResult> GetTripInfo(int id)
         {
             var result = await _tripRepository.GetTripInfo(id, User.Identity.Name);
+            var x = new TripInfoDTO();
+            if (result.Equals(new TripInfoDTO()))
+            {
+                return NoContent();
+            }
+
             if (result == null)
                 return Unauthorized("Ошибка доступа к поездке.");
             else return Ok(Newtonsoft.Json.JsonConvert.SerializeObject(result, Newtonsoft.Json.Formatting.Indented));
@@ -79,6 +85,16 @@ namespace TravelHelperBackend.Controllers
             var result = await _tripRepository.DeleteTrip(id, User.Identity.Name);
             if (result == false)
                 return Unauthorized("Ошибка при удалении поездки. Возможно, вы не можете удалять эту поездку.");
+            else return Ok(Newtonsoft.Json.JsonConvert.SerializeObject(result, Newtonsoft.Json.Formatting.Indented));
+        }
+
+        [Authorize]
+        [HttpPost("ChangeRole")]
+        public async Task<IActionResult> ChangeUserRole([FromBody] ChangeRoleDTO data)
+        {
+            var result = await _tripRepository.ChangeTripRole(data, User.Identity.Name);
+            if (result == null)
+                return BadRequest("Ошибка изменения роли. Возможно, вы не имеете доступа к поездке или редактируемая роль имеет такие же полномочия, как и ваша.");
             else return Ok(Newtonsoft.Json.JsonConvert.SerializeObject(result, Newtonsoft.Json.Formatting.Indented));
         }
 
@@ -113,6 +129,16 @@ namespace TravelHelperBackend.Controllers
         }
 
         [Authorize]
+        [HttpGet("GetAction/{id}")]
+        public async Task<IActionResult> AddAction(long id)
+        {
+            var result = await _tripDayRepository.GetActionInfo(id, User.Identity.Name);
+            if (result == null)
+                return BadRequest("Ошибка доступа к событию. Возможно, вы не имеете прав доступа к нему.");
+            else return Ok(Newtonsoft.Json.JsonConvert.SerializeObject(result, Newtonsoft.Json.Formatting.Indented));
+        }
+
+        [Authorize]
         [HttpPost("AddAction")]
         public async Task<IActionResult> AddAction([FromBody] AddActionDTO data)
         {
@@ -123,8 +149,8 @@ namespace TravelHelperBackend.Controllers
         }
 
         [Authorize]
-        [HttpDelete("DeleteAction")]
-        public async Task<IActionResult> DeleteAction([FromBody] long id)
+        [HttpDelete("DeleteAction/{id}")]
+        public async Task<IActionResult> DeleteAction(long id)
         {
             var result = await _tripDayRepository.DeleteAction(id, User.Identity.Name);
             if (result == null)
@@ -143,10 +169,20 @@ namespace TravelHelperBackend.Controllers
         }
 
         [Authorize]
-        [HttpPost("Vote")]
-        public async Task<IActionResult> VoteInPoll([FromBody] int tripId, int selectedVariant)
+        [HttpPost("CreatePoll")]
+        public async Task<IActionResult> CreatePoll([FromBody] CreatePollDTO data)
         {
-            var result = await _tripRepository.VoteInPoll(tripId, selectedVariant, User.Identity.Name);
+            var result = await _tripDayRepository.CreatePoll(data, User.Identity.Name);
+            if (result == null)
+                return BadRequest("Ошибка при создании опроса. Возможно, вы не имеете прав создавать опросы в этой поездке.");
+            return Ok(Newtonsoft.Json.JsonConvert.SerializeObject(result, Newtonsoft.Json.Formatting.Indented));
+        }
+
+        [Authorize]
+        [HttpPost("Vote")]
+        public async Task<IActionResult> VoteInPoll([FromBody] VoteInPollDTO data)
+        {
+            var result = await _tripDayRepository.VoteInPoll(data.PollId, data.VariantIndex, User.Identity.Name);
             if (result == null)
                 return BadRequest("Ошибка при отправке голоса. Возможно, вы не имеете доступа к этому голосованию.");
             return Ok(Newtonsoft.Json.JsonConvert.SerializeObject(result, Newtonsoft.Json.Formatting.Indented));

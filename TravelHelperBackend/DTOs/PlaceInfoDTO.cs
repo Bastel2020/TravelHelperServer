@@ -38,11 +38,11 @@ namespace TravelHelperBackend.DTOs
             PlaceSite = placeToParse.PlaceSite;
             EnterCost = placeToParse.EnterCost;
             if (placeToParse.MainPhoto != null && placeToParse.MainPhoto.Id != 0)
-                MainPhotoUrl = $"/files/photos/{placeToParse.MainPhoto.Id}";
+                MainPhotoUrl = $"http://188.186.7.171/travelhelperbackend/api/files/photos/{placeToParse.MainPhoto.Id}";
             if (placeToParse.Photos != null)
                 PhotosUrl = placeToParse.Photos
                     .Where(p => p.Id != 0)
-                    .Select(p => $"/files/photos/{p.Id}").ToList();
+                    .Select(p => $"http://188.186.7.171/travelhelperbackend/api/files/photos/{p.Id}").ToList();
             Latitude = placeToParse.Latitude;
             Longitude = placeToParse.Longitude;
             Location = placeToParse.Location;

@@ -58,6 +58,14 @@ namespace TravelHelperBackend.Repositories
         {
             var user = await _db.Users
                 .Include(u => u.UserTrips)
+                .ThenInclude(ut => ut.TripDestination)
+                .Include(u => u.UserTrips)
+                .ThenInclude(t => t.Members)
+                .ThenInclude(m => m.Avatar)
+                .Include(u => u.UserTrips)
+                .ThenInclude(t => t.TripDays)
+                .ThenInclude(td => td.Actions)
+                .Include(u => u.UserTrips)
                 .FirstOrDefaultAsync(u => u.Email == email);
 
             if (user == null)
@@ -65,6 +73,27 @@ namespace TravelHelperBackend.Repositories
 
             return new UserInfoDTO(user);
         }
+
+        //public async Task<TripInfoDTO[]> GetUserTrips(string email)
+        //{
+        //    var user = await _db.Users
+        //        .FirstOrDefaultAsync(u => u.Email == email);
+        //    if (user == null)
+        //        return null;
+
+        //    var trips = _db.Trips
+        //        .Where(t => t.Members.Contains(user))
+        //        .Include(t => t.Members)
+        //        .Include(t => t.MemberRoles)
+        //        .Include(t => t.TripDays)
+        //        .ThenInclude(td => td.Actions)
+        //        .Include(t => t.TripDestination);
+
+        //    if (user == null)
+        //        return null;
+
+        //    return new UserInfoDTO(user);
+        //}
 
         public async Task<bool> UploadAvatar(IFormFile file, string email)
         {
