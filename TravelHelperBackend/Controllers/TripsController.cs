@@ -68,13 +68,14 @@ namespace TravelHelperBackend.Controllers
         {
             var result = await _tripRepository.GetTripInfo(id, User.Identity.Name);
             var x = new TripInfoDTO();
+
+            if (result == null)
+                return Unauthorized("Ошибка доступа к поездке.");
+
             if (result.Equals(new TripInfoDTO()))
             {
                 return NoContent();
             }
-
-            if (result == null)
-                return Unauthorized("Ошибка доступа к поездке.");
             else return Ok(Newtonsoft.Json.JsonConvert.SerializeObject(result, Newtonsoft.Json.Formatting.Indented));
         }
 
@@ -186,6 +187,16 @@ namespace TravelHelperBackend.Controllers
             if (result == null)
                 return BadRequest("Ошибка при отправке голоса. Возможно, вы не имеете доступа к этому голосованию.");
             return Ok(Newtonsoft.Json.JsonConvert.SerializeObject(result, Newtonsoft.Json.Formatting.Indented));
+        }
+
+        [Authorize]
+        [HttpDelete("DeletePoll/{id}")]
+        public async Task<IActionResult> DeletePoll(int id)
+        {
+            var result = await _tripDayRepository.DeletePoll(id, User.Identity.Name);
+            if (result == null)
+                return BadRequest("Ошибка удаления опроса. Возможно, вы не можете редактировать поездку.");
+            else return Ok(Newtonsoft.Json.JsonConvert.SerializeObject(result, Newtonsoft.Json.Formatting.Indented));
         }
     }
 }

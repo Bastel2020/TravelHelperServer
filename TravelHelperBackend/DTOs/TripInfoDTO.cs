@@ -21,16 +21,16 @@ namespace TravelHelperBackend.DTOs
         public object Users { get; set; }
         public object TripDays { get; set; }
         public TripRole RequiedRoleForInviteCode { get; set; }
-        public TripInfoDTO(Trip tripToParse, TripRole role)
+        public TripInfoDTO(Trip tripToParse, TripMember role)
         {
             Id = tripToParse.Id;
             Name = tripToParse.Name;
             Description = tripToParse.Description;
             DestinationId = tripToParse.TripDestination.Id;
             DestinationName = tripToParse.TripDestination.Name;
-            if (role != TripRole.Viewer)
+            if (role.Role != TripRole.Viewer)
                 RequiedRoleForInviteCode = tripToParse.RequeidRoleToAccessInviteCode;
-            if(role <= tripToParse.RequeidRoleToAccessInviteCode)
+            if(role.Role <= tripToParse.RequeidRoleToAccessInviteCode)
                 InviteCode = tripToParse.InviteCode;
             try
             {
@@ -42,7 +42,8 @@ namespace TravelHelperBackend.DTOs
             {
                 UserId = mr.UserId,
                 Role = mr.Role,
-                Username = mr.User.Username
+                Username = mr.User.Username,
+                CurrentUser = mr.UserId == role.UserId
             });
             TripDays = tripToParse.TripDays
                 .OrderBy(td => td.Date)
@@ -55,8 +56,8 @@ namespace TravelHelperBackend.DTOs
             });;
 
             var c = Name.Split(" ");
-            var x = c.Last()[0];
             Chars = c.Length == 1 ? c.First()[0].ToString() : String.Concat(c.First()[0], c.Last()[0]);
+            Chars = Chars.ToUpper();
         }
 
         public TripInfoDTO()

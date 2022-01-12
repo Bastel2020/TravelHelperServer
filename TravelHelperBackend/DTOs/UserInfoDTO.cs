@@ -33,6 +33,7 @@ namespace TravelHelperBackend.DTOs
     {
         public int Id { get; set; }
         public string Name { get; set; }
+        public string Chars { get; set; }
         public string TripStart { get; set; }
         public string TripEnd { get; set; }
         public int DestinationId { get; set; }
@@ -59,12 +60,16 @@ namespace TravelHelperBackend.DTOs
                     .Select(m => new TripMembersShortInfo(m))
                     .ToArray();
 
-            if (data.Members.Count == 2)
+            else
                 FirstTwoUsers = data.Members
                     .Select(m => new TripMembersShortInfo(m))
                     .ToArray();
 
-            AdditionalUserCount = data.Members.Count > 2 ? data.Members.Count - 3 : 0;
+            AdditionalUserCount = data.Members.Count > 2 ? data.Members.Count - 2 : 0;
+
+            var c = Name.Split(" ");
+            Chars = c.Length == 1 ? c.First()[0].ToString() : String.Concat(c.First()[0], c.Last()[0]);
+            Chars = Chars.ToUpper();
         }
     }
 

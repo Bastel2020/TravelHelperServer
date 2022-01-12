@@ -50,12 +50,22 @@ namespace TravelHelperBackend.Repositories
 
         public async Task<TripInfoDTO> CreateTrip(CreateTripDTO data, string email)
         {
+            DateTime startDate, endDate;
+            try
+            {
+                startDate = DateTime.Parse(data.StartDate);
+                endDate = DateTime.Parse(data.EndDate);
+            }
+            catch
+            {
+                return null;
+            }
             var currentUser = await _db.Users.FirstOrDefaultAsync(u => u.Email == email);
             if (currentUser == null || data.Name == null)
                 return null;
 
             var TripDays = new List<TripDay>();
-            for (var i = data.StartDate; i < data.EndDate; i = i.AddDays(1))
+            for (var i = startDate; i <= endDate; i = i.AddDays(1))
             {
                 TripDays.Add(new TripDay(i));
             }
@@ -152,7 +162,7 @@ namespace TravelHelperBackend.Repositories
             var tripMember = trip.Members.FirstOrDefault(u => u.Email == email);
             if (tripMember == null)
                 return null;
-            var role = trip.MemberRoles.FirstOrDefault(mr => mr.UserId == tripMember.Id).Role;
+            var role = trip.MemberRoles.FirstOrDefault(mr => mr.UserId == tripMember.Id);
                 return new TripInfoDTO(trip, role);
         }
 
@@ -203,7 +213,7 @@ namespace TravelHelperBackend.Repositories
 
             var userToChangeRole = trip.MemberRoles.FirstOrDefault(mr => mr.UserId == data.UserToChangeId);
 
-            if (userToChangeRole.Role == Enums.TripRole.Owner || (userToChangeRole.Role == Enums.TripRole.Editor && editorTripRole.Role == Enums.TripRole.Editor))
+            if (userToChangeRole == null || userToChangeRole.Role == Enums.TripRole.Owner || (userToChangeRole.Role == Enums.TripRole.Editor && editorTripRole.Role == Enums.TripRole.Editor))
                 return null;
 
             if (data.NewRoleId == 1)

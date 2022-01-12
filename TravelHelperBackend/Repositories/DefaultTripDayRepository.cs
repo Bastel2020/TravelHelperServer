@@ -220,7 +220,7 @@ namespace TravelHelperBackend.Repositories
             return await _trRep.GetTripInfo(trip.Id, email);
         }
 
-        public async Task<TripInfoDTO> CreatePoll(CreatePollDTO data, string email)
+        public async Task<ActionInfoDTO> CreatePoll(CreatePollDTO data, string email)
         {
             var currentUser = _db.Users.FirstOrDefault(u => u.Email == email);
             if (currentUser == null)
@@ -235,6 +235,9 @@ namespace TravelHelperBackend.Repositories
             if (tripAction == null)
                 return null;
 
+            if (tripAction.Polls.Count > 0)
+                return null;
+
             var editorRole = tripAction.Parent.Parent.MemberRoles.FirstOrDefault(mr => mr.UserId == currentUser.Id);
             if (editorRole == null || editorRole.Role == Enums.TripRole.Viewer)
                 return null;
@@ -243,10 +246,10 @@ namespace TravelHelperBackend.Repositories
 
             await _db.SaveChangesAsync();
 
-            return await _trRep.GetTripInfo(tripAction.Parent.Parent.Id, email);
+            return new ActionInfoDTO(tripAction);
         }
 
-        public async Task<TripInfoDTO> VoteInPoll(int pollId, int selectedOption, string email)
+        public async Task<ActionInfoDTO> VoteInPoll(int pollId, int selectedOption, string email)
         {
             var currentUser = _db.Users.FirstOrDefault(u => u.Email == email);
             if (currentUser == null)
@@ -258,19 +261,51 @@ namespace TravelHelperBackend.Repositories
                 .ThenInclude(td => td.Parent)
                 .ThenInclude(t => t.MemberRoles)
                 .Include(p => p.Variants)
+                .ThenInclude(v => v.Votes)
                 .FirstOrDefaultAsync(p => p.Id == pollId);
             if (poll == null)
                 return null;
 
             var trip = poll.Parent.Parent.Parent;
             var user = trip.MemberRoles.FirstOrDefault(mr => mr.UserId == currentUser.Id);
-            if (user != null)
+            if (user == null)
                 return null;
             poll.Variants[selectedOption].Votes.Add(currentUser);
 
             await _db.SaveChangesAsync();
 
-            return await _trRep.GetTripInfo(poll.Parent.Parent.Parent.Id, email);
+            return new ActionInfoDTO(poll.Parent);
+        }
+
+        public async Task<ActionInfoDTO> DeletePoll(int pollId, string email)
+        {
+            var currentUser = _db.Users.FirstOrDefault(u => u.Email == email);
+            if (currentUser == null)
+                return null;
+
+            var poll = await _db.Polls
+                .Include(p => p.Parent)
+                .ThenInclude(ta => ta.Parent)
+                .ThenInclude(td => td.Parent)
+                .ThenInclude(t => t.MemberRoles)
+                .Include(p => p.Variants)
+                .ThenInclude(v => v.Votes)
+                .FirstOrDefaultAsync(p => p.Id == pollId);
+            if (poll == null)
+                return null;
+
+            var trip = poll.Parent.Parent.Parent;
+            var user = trip.MemberRoles.FirstOrDefault(mr => mr.UserId == currentUser.Id);
+            if (user == null || user.Role == Enums.TripRole.Viewer)
+                return null;
+
+            var tripAction = poll.Parent;
+
+            _db.Polls.Remove(poll);
+
+            await _db.SaveChangesAsync();
+
+            return new ActionInfoDTO(tripAction);
         }
     }
 }
